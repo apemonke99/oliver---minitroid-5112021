@@ -1,5 +1,5 @@
 {
-    "name": "Oliver - Minitroid 5.11.2021",
+    "name": "Oliver - Minitroid 29.10.2021",
     "description": "",
     "dependencies": {
         "device": "*",
@@ -14,7 +14,9 @@
         "pxt-arcade-rotsprite": "github:ChaseMor/pxt-arcade-rotsprite#b5b91d0f67e4df90ec703c36875c30afffbe653c",
         "color-coded-tilemap": "*",
         "arcade-sprite-data": "github:microsoft/arcade-sprite-data#v0.1.0",
-        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.1"
+        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.1",
+        "darts": "*",
+        "settings-blocks": "github:microsoft/pxt-settings-blocks#v1.0.0"
     },
     "files": [
         "main.blocks",
