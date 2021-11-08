@@ -43,6 +43,10 @@ namespace SpriteKind {
     export const kndKraidBullet = SpriteKind.create()
     export const lockedDoor = SpriteKind.create()
     export const kndBossRidley = SpriteKind.create()
+    export const kndRidleyFire = SpriteKind.create()
+    export const kndRidleyBat = SpriteKind.create()
+    export const kndEnemyTurretV = SpriteKind.create()
+    export const kndProjTurret = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const healthEnergy = StatusBarKind.create()
@@ -84,6 +88,16 @@ function Setup_createLevel2 (_continue: boolean, fromLevel: boolean) {
     tiles.createSpritesOnTiles(assets.tile`myTile15`, SpriteKind.kndItemEtank)
     tiles.createSpritesOnTiles(assets.tile`powerBombGlass`, SpriteKind.kndPowerBombGlass)
     tiles.createSpritesOnTiles(assets.tile`ridleyGlass`, SpriteKind.kndRidleyGlass)
+    if (varBattlingRidley == 2) {
+        tiles.setWallAt(tiles.getTileLocation(110, 40), true)
+        tiles.setWallAt(tiles.getTileLocation(107, 44), true)
+        tiles.setWallAt(tiles.getTileLocation(110, 48), true)
+        tiles.setWallAt(tiles.getTileLocation(107, 50), true)
+        tiles.setTileAt(tiles.getTileLocation(110, 40), assets.tile`templeGround13`)
+        tiles.setTileAt(tiles.getTileLocation(107, 44), assets.tile`templeGround13`)
+        tiles.setTileAt(tiles.getTileLocation(110, 48), assets.tile`templeGround13`)
+        tiles.setTileAt(tiles.getTileLocation(107, 50), assets.tile`templeGround13`)
+    }
     timer.after(100, function () {
         tiles.replaceAllTiles(assets.tile`myTile11`, assets.tile`breakableBlock0`)
         tiles.replaceAllTiles(assets.tile`myTile19`, assets.tile`breakableBlock0`)
@@ -118,13 +132,27 @@ function Setup_createLevel2 (_continue: boolean, fromLevel: boolean) {
     })
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidClaw, function (sprite, otherSprite) {
-    playerDamaged(20, otherSprite)
+    playerDamaged(-20, otherSprite)
 })
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyBat, function (sprite, otherSprite) {
     hitEnemy(-3, sprite, otherSprite)
 })
 sprites.onOverlap(SpriteKind.kndSuperMissile, SpriteKind.kndEnemySnakes, function (sprite, otherSprite) {
     hitEnemy(-100, sprite, otherSprite)
+})
+sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndMissiles, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    sprites.changeDataNumberBy(sprite, "health", -1)
+    if (sprites.readDataNumber(sprite, "health") <= 0) {
+        Boss_Defeat_Ridley()
+    }
+})
+sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndItemChargeBean, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    sprites.changeDataNumberBy(sprite, "health", -3)
+    if (sprites.readDataNumber(sprite, "health") <= 0) {
+        Boss_Defeat_Ridley()
+    }
 })
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndEnemyBat, function (sprite, otherSprite) {
     hitEnemy(-1, sprite, otherSprite)
@@ -149,6 +177,8 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndItemSuperMissile, function (s
     game.splash("Super Missiles Acquired", "Press Menu Twice to select, Fire with B.")
     varItemGetMusic = false
     varSuperMissileFound = true
+    stbMissiles.value = stbMissiles.max
+    txtMissileCounter.setText(" " + convertToText(stbMissiles.value))
     Song_Norin_lvl2()
 })
 function Song_Part_Enrylo_lvl1_Bass_2026 () {
@@ -161,6 +191,69 @@ function Song_Part_Enrylo_lvl1_Bass_2026 () {
     music.rest(music.beat(BeatFraction.Half))
 }
 function Boss_Defeat_Ridley () {
+    varBattlingRidley = 2
+    varExtraEnemyHealth = 4
+    varExtraEnemyDmg = 5
+    varBossesDefeated = 2
+    animation.runImageAnimation(
+    bossRidley,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . 4 4 4 4 4 . . . . . . 
+        . . . 4 4 4 5 5 5 d 4 4 4 4 . . 
+        . . 4 d 5 d 5 5 5 d d d 4 4 . . 
+        . . 4 5 5 1 1 1 d d 5 5 5 4 . . 
+        . 4 5 5 5 1 1 1 5 1 1 5 5 4 4 . 
+        . 4 d d 1 1 5 5 5 1 1 5 5 d 4 . 
+        . 4 5 5 1 1 5 1 1 5 5 d d d 4 . 
+        . 2 5 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . 2 d 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . . 2 4 d d 5 5 5 5 d d 5 4 . . 
+        . . . 2 2 4 d 5 5 d d 4 4 . . . 
+        . . 2 2 2 2 2 4 4 4 2 2 2 . . . 
+        . . . 2 2 4 4 4 4 4 4 2 2 . . . 
+        . . . . . 2 2 2 2 2 2 . . . . . 
+        `,img`
+        . . . . 2 2 2 2 2 2 2 2 . . . . 
+        . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
+        . 2 2 5 5 d 4 5 5 5 4 4 4 4 2 . 
+        . 2 4 5 5 5 5 d 5 5 5 4 5 4 2 2 
+        . 2 4 d d 5 5 5 5 5 5 d 4 4 4 2 
+        2 4 5 5 d 5 5 5 d d d 5 5 5 4 4 
+        2 4 5 5 4 4 4 d 5 5 d 5 5 5 4 4 
+        4 4 4 4 . . 2 4 5 5 . . 4 4 4 4 
+        . . b b b b 2 4 4 2 b b b b . . 
+        . b d d d d 2 4 4 2 d d d d b . 
+        b d d b b b 2 4 4 2 b b b d d b 
+        b d d b b b b b b b b b b d d b 
+        b b d 1 1 3 1 1 d 1 d 1 1 d b b 
+        . . b b d d 1 1 3 d d 1 b b . . 
+        . . 2 2 4 4 4 4 4 4 4 4 2 2 . . 
+        . . . 2 2 4 4 4 4 4 2 2 2 . . . 
+        `,img`
+        . . . . . . . . b b . . . . . . 
+        . . . . . . . . b b . . . . . . 
+        . . . b b b . . . . . . . . . . 
+        . . b d d b . . . . . . . b b . 
+        . b d d d b . . . . . . b d d b 
+        . b d d b . . . . b b . b d d b 
+        . b b b . . . . . b b . . b b . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . b b b d d d d d d b b b . . 
+        . b d c c c b b b b c c d d b . 
+        b d d c b . . . . . b c c d d b 
+        c d d b b . . . . . . b c d d c 
+        c b d d d b b . . . . b d d c c 
+        . c c b d d d d b . c c c c c c 
+        . . . c c c c c c . . . . . . . 
+        `],
+    100,
+    false
+    )
+    pause(300)
+    bossRidley.destroy()
     scene.cameraShake(4, 500)
     tiles.setWallAt(tiles.getTileLocation(110, 40), true)
     tiles.setWallAt(tiles.getTileLocation(107, 44), true)
@@ -396,6 +489,7 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
                 100,
                 false
                 )
+                music.bigCrash.play()
                 timer.after(300, function () {
                     projPowerBomb.destroy()
                 })
@@ -403,6 +497,7 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         })
     }
     if (varLevelState >= 1 && varJumpStatus != -2) {
+        music.pewPew.play()
         if (varDirection == 1 && varSelectedMissile == 0) {
             projPowerBeam = sprites.createProjectileFromSprite(assets.image`bullet0`, plrSamus, -250, 0)
             projPowerBeam.setKind(SpriteKind.kndPowerBeam)
@@ -670,39 +765,66 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndItemMissileTank, function (sp
     }
 })
 function Song_Escape () {
+    varEscapeMusic = true
     music.setTempo(150)
     timer.background(function () {
         for (let index = 0; index < 2; index++) {
             timer.background(function () {
-                music.playTone(392, music.beat(BeatFraction.Double))
+                if (varEscapeMusic) {
+                    music.playTone(392, music.beat(BeatFraction.Double))
+                }
             })
             timer.background(function () {
-                music.playTone(294, music.beat(BeatFraction.Double))
-            })
-            music.rest(music.beat(BeatFraction.Double))
-            timer.background(function () {
-                music.playTone(466, music.beat(BeatFraction.Double))
-            })
-            timer.background(function () {
-                music.playTone(349, music.beat(BeatFraction.Double))
+                if (varEscapeMusic) {
+                    music.playTone(294, music.beat(BeatFraction.Double))
+                }
             })
             music.rest(music.beat(BeatFraction.Double))
             timer.background(function () {
-                music.playTone(440, music.beat(BeatFraction.Breve))
+                if (varEscapeMusic) {
+                    music.playTone(466, music.beat(BeatFraction.Double))
+                }
             })
             timer.background(function () {
-                music.playTone(277, music.beat(BeatFraction.Breve))
+                if (varEscapeMusic) {
+                    music.playTone(349, music.beat(BeatFraction.Double))
+                }
+            })
+            music.rest(music.beat(BeatFraction.Double))
+            timer.background(function () {
+                if (varEscapeMusic) {
+                    music.playTone(440, music.beat(BeatFraction.Breve))
+                }
+            })
+            timer.background(function () {
+                if (varEscapeMusic) {
+                    music.playTone(277, music.beat(BeatFraction.Breve))
+                }
             })
             music.rest(music.beat(BeatFraction.Breve))
         }
     })
     for (let index = 0; index < 8; index++) {
-        music.playTone(196, music.beat(BeatFraction.Whole))
-        music.playTone(196, music.beat(BeatFraction.Triplet))
-        music.playTone(196, music.beat(BeatFraction.Triplet))
-        music.playTone(196, music.beat(BeatFraction.Triplet))
+        if (varEscapeMusic) {
+            music.playTone(196, music.beat(BeatFraction.Whole))
+        }
+        if (varEscapeMusic) {
+            music.playTone(196, music.beat(BeatFraction.Triplet))
+        }
+        if (varEscapeMusic) {
+            music.playTone(196, music.beat(BeatFraction.Triplet))
+        }
+        if (varEscapeMusic) {
+            music.playTone(196, music.beat(BeatFraction.Triplet))
+        }
+    }
+    if (varEscapeMusic) {
+        Song_Escape()
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndProjTurret, function (sprite, otherSprite) {
+    playerDamaged(-15, otherSprite)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndItemMorphBall, function (sprite, otherSprite) {
     itemMorphBall.destroy()
     varEnryloMusic = false
@@ -982,89 +1104,121 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndEnemyBat, function (sprite, o
 function Boss_Ridley () {
     bossRidley = sprites.create(assets.image`ridleyStand`, SpriteKind.kndBossRidley)
     tiles.placeOnTile(bossRidley, tiles.getTileLocation(100, 51))
+    sprites.setDataNumber(bossRidley, "health", 40)
+    varBattlingRidley = 1
     timer.after(5000, function () {
-        let mySprite: Sprite = null
-        for (let index = 0; index < 2; index++) {
+        while (varBattlingRidley == 1) {
+            for (let index = 0; index < 2; index++) {
+                animation.runImageAnimation(
+                bossRidley,
+                assets.animation`ridleyFlyLeft`,
+                200,
+                true
+                )
+                animation.runMovementAnimation(
+                bossRidley,
+                animation.animationPresets(animation.easeUp),
+                2000,
+                false
+                )
+                pause(2000)
+                bossRidley.setVelocity(-16, 94)
+                pause(1000)
+                bossRidley.setVelocity(0, 0)
+                pause(200)
+                for (let index = 0; index < 10; index++) {
+                    animation.runMovementAnimation(
+                    bossRidley,
+                    animation.animationPresets(animation.bobbingLeft),
+                    500,
+                    false
+                    )
+                    bossRidleyFireball = sprites.createProjectileFromSprite(assets.image`ridleyFireBall_3`, bossRidley, -100, 75)
+                    bossRidleyFireball.setKind(SpriteKind.kndRidleyFire)
+                    bossRidleyFireball.x += -20
+                    bossRidleyFireball.y += -14
+                    animation.runImageAnimation(
+                    bossRidleyFireball,
+                    assets.animation`ridleyFireball`,
+                    100,
+                    true
+                    )
+                    pause(550)
+                }
+                animation.runImageAnimation(
+                bossRidley,
+                assets.animation`ridleyFlyRight`,
+                200,
+                true
+                )
+                animation.runMovementAnimation(
+                bossRidley,
+                animation.animationPresets(animation.easeUp),
+                2000,
+                false
+                )
+                pause(2000)
+                bossRidley.setVelocity(16, 94)
+                pause(1000)
+                bossRidley.setVelocity(0, 0)
+                pause(100)
+                for (let index = 0; index < 10; index++) {
+                    animation.runMovementAnimation(
+                    bossRidley,
+                    animation.animationPresets(animation.bobbingRight),
+                    500,
+                    false
+                    )
+                    bossRidleyFireball = sprites.createProjectileFromSprite(assets.image`ridleyFireBall_3`, bossRidley, 100, 75)
+                    bossRidleyFireball.setKind(SpriteKind.kndRidleyFire)
+                    bossRidleyFireball.x += 20
+                    bossRidleyFireball.y += -15
+                    animation.runImageAnimation(
+                    bossRidleyFireball,
+                    assets.animation`ridleyFireball`,
+                    100,
+                    true
+                    )
+                    pause(550)
+                }
+            }
+            story.spriteMoveToLocation(bossRidley, 104 * 16, 51 * 16, 100)
+            pause(500)
+            animation.stopAnimation(animation.AnimationTypes.All, bossRidley)
+            bossRidley.setImage(assets.image`ridleyStand`)
+            bossRidley.y += 11
+            for (let index = 0; index < 2; index++) {
+                animation.runImageAnimation(
+                bossRidley,
+                assets.animation`ridleyFlameAttack`,
+                1000,
+                false
+                )
+                pause(1000)
+                for (let index = 0; index < 6; index++) {
+                    bossRidleyFireball = sprites.createProjectileFromSprite(assets.image`ridleyFireBall_3`, bossRidley, -100, 0)
+                    bossRidleyFireball.setKind(SpriteKind.kndRidleyFire)
+                    bossRidleyFireball.x += -14
+                    bossRidleyFireball.y += -7
+                    animation.runImageAnimation(
+                    bossRidleyFireball,
+                    assets.animation`ridleyFireball`,
+                    100,
+                    true
+                    )
+                    pause(100)
+                }
+                pause(1000)
+            }
+            story.spriteMoveToLocation(bossRidley, 100 * 16, 51 * 16, 100)
             animation.runImageAnimation(
             bossRidley,
             assets.animation`ridleyFlyLeft`,
             200,
             true
             )
-            animation.runMovementAnimation(
-            bossRidley,
-            animation.animationPresets(animation.easeUp),
-            2000,
-            false
-            )
-            pause(2000)
-            bossRidley.setVelocity(-16, 94)
-            pause(1000)
-            bossRidley.setVelocity(0, 0)
-            pause(200)
-            for (let index = 0; index < 10; index++) {
-                animation.runMovementAnimation(
-                bossRidley,
-                animation.animationPresets(animation.bobbingLeft),
-                500,
-                false
-                )
-                pause(550)
-            }
-            animation.runImageAnimation(
-            bossRidley,
-            assets.animation`ridleyFlyRight`,
-            200,
-            true
-            )
-            animation.runMovementAnimation(
-            bossRidley,
-            animation.animationPresets(animation.easeUp),
-            2000,
-            false
-            )
-            pause(2000)
-            bossRidley.setVelocity(16, 94)
-            pause(1000)
-            bossRidley.setVelocity(0, 0)
-            pause(100)
-            for (let index = 0; index < 10; index++) {
-                animation.runMovementAnimation(
-                bossRidley,
-                animation.animationPresets(animation.bobbingRight),
-                500,
-                false
-                )
-                pause(550)
-            }
+            bossRidley.y += 11
         }
-        story.spriteMoveToLocation(bossRidley, 100 * 16, 51 * 16, 100)
-        pause(100)
-        animation.stopAnimation(animation.AnimationTypes.All, bossRidley)
-        bossRidley.setImage(assets.image`ridleyStand`)
-        animation.runImageAnimation(
-        mySprite,
-        [img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `],
-        500,
-        false
-        )
     })
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile24`, function (sprite, location) {
@@ -1169,6 +1323,26 @@ scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava0, function (sp
         }
         stbEnergy.setLabel(convertToText(stbEnergy.value), 5)
     })
+})
+sprites.onCreated(SpriteKind.kndEnemyTurret, function (sprite) {
+    sprite.setImage(img`
+        . . . . . f f f f f f . . . . . 
+        . . . f f 1 1 1 1 1 1 f f . . . 
+        . . f f 1 1 1 1 1 1 1 1 f f . . 
+        . f f 1 d 1 1 1 1 1 1 1 1 f f . 
+        . f 1 d 1 1 1 1 1 1 1 1 1 1 f . 
+        f 1 d d 1 1 1 1 1 1 1 1 1 1 1 f 
+        f 1 d 1 1 1 1 1 1 1 1 1 1 1 1 f 
+        f 1 d 1 1 1 1 1 1 1 1 1 1 1 1 f 
+        f d d d 1 1 1 1 1 1 1 1 1 1 1 f 
+        f d d d 1 1 1 1 1 1 1 1 1 d 1 f 
+        f d d d d 1 1 1 1 1 1 1 d d 1 f 
+        . f d d d d d 1 1 1 1 d d d f . 
+        . f d d d d d d d d d d d f f . 
+        . . f d d d d d d d d d f f . . 
+        . . . f f d d d d d d f f . . . 
+        . . . . . f f f f f f . . . . . 
+        `)
 })
 sprites.onCreated(SpriteKind.greenDoor, function (sprite) {
     sprite.setImage(assets.image`doorSuper`)
@@ -1837,12 +2011,7 @@ function Setup_Starting_Cutscene () {
         plrSamus.vy = 45
         plrSamus.ay = 0
         pause(5000)
-        animation.runImageAnimation(
-        plrSamus,
-        assets.animation`samusFrontAnim`,
-        200,
-        false
-        )
+        plrSamus.setImage(assets.image`samusFront`)
         plrSamus.vy = 0
         plrSamus.ay = 500
         controller.moveSprite(plrSamus, 100, 0)
@@ -2073,6 +2242,7 @@ function Song_Ending () {
         music.playTone(110, music.beat(BeatFraction.Quarter))
         music.playTone(110, music.beat(BeatFraction.Half))
     }
+    Song_Ending()
 }
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.redDoor, function (sprite, otherSprite) {
     timer.throttle("action", 3000, function () {
@@ -2094,6 +2264,27 @@ sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.redDoor, function (sprite, 
             )
         })
     })
+})
+function setup_createLvl4 () {
+    color.clearFadeEffect()
+    tiles.loadMap(tiles.createMap(tilemap`level3`))
+    varLevelState = 4
+    tiles.placeOnTile(plrSamus, tiles.getTileLocation(60, 52))
+    scene.setBackgroundImage(assets.image`CallarisBG`)
+    tiles.createSpritesOnTiles(assets.tile`myTile8`, SpriteKind.kndEnemyTurret)
+    tiles.createSpritesOnTiles(assets.tile`myTile23`, SpriteKind.kndEnemyTurretV)
+    timer.after(100, function () {
+        tiles.replaceAllTiles(assets.tile`myTile8`, assets.tile`transparency16`)
+        tiles.replaceAllTiles(assets.tile`myTile23`, assets.tile`transparency16`)
+    })
+    timer.background(function () {
+        Song_Escape()
+    })
+    story.printDialog("Escape!!!", 80, 90, 50, 150, 2, 15, story.TextSpeed.Normal)
+    info.startCountdown(60)
+}
+statusbars.onZero(StatusBarKind.healthEnergy, function (status) {
+    game.over(false)
 })
 controller.right.onEvent(ControllerButtonEvent.Released, function () {
     if (varLevelState >= 1) {
@@ -2404,13 +2595,13 @@ function Setup_createLevel1 (_continue: boolean, fromLevel: boolean) {
             tiles.placeOnTile(plrSamus, tiles.getTileLocation(88, 10))
         }
         varLevelState = 1
+        timer.background(function () {
+            Song_Enrylo_lvl1()
+        })
     }
-    timer.background(function () {
-        Song_Enrylo_lvl1()
-    })
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidBullet, function (sprite, otherSprite) {
-    playerDamaged(20, otherSprite)
+    playerDamaged(-20, otherSprite)
 })
 controller.B.onEvent(ControllerButtonEvent.Repeated, function () {
     if (varChargeBeamFound == true) {
@@ -2520,6 +2711,9 @@ function closeDoor (doorCol: number, doorRow: number) {
         varDoorRow += -1
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndRidleyFire, function (sprite, otherSprite) {
+    playerDamaged(-35, otherSprite)
+})
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (varLevelState >= 1) {
         varDirection = 2
@@ -2592,11 +2786,9 @@ sprites.onOverlap(SpriteKind.kndSuperMissile, SpriteKind.kndEnemyBabyKaiju, func
     hitEnemy(-100, sprite, otherSprite)
 })
 sprites.onOverlap(SpriteKind.kndProjPowerBomb, SpriteKind.kndRidleyGlass, function (sprite, otherSprite) {
-    varRidleyGlassLocation = 65
     for (let value of sprites.allOfKind(SpriteKind.kndRidleyGlass)) {
-        tiles.setWallAt(tiles.getTileLocation(varRidleyGlassLocation, 39), false)
-        value.destroy(effects.warmRadial, 500)
-        varRidleyGlassLocation += 1
+        tiles.setWallAt(tiles.locationOfSprite(value), false)
+        value.destroy(effects.coolRadial, 500)
     }
 })
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava1, function (sprite, location) {
@@ -2667,6 +2859,71 @@ sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.orangeDoor, function (spr
         false
         )
     })
+})
+sprites.onOverlap(SpriteKind.kndBossCore, SpriteKind.kndItemSuperMissile, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    animation.runImageAnimation(
+    sprite,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . 4 4 4 4 4 . . . . . . 
+        . . . 4 4 4 5 5 5 d 4 4 4 4 . . 
+        . . 4 d 5 d 5 5 5 d d d 4 4 . . 
+        . . 4 5 5 1 1 1 d d 5 5 5 4 . . 
+        . 4 5 5 5 1 1 1 5 1 1 5 5 4 4 . 
+        . 4 d d 1 1 5 5 5 1 1 5 5 d 4 . 
+        . 4 5 5 1 1 5 1 1 5 5 d d d 4 . 
+        . 2 5 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . 2 d 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . . 2 4 d d 5 5 5 5 d d 5 4 . . 
+        . . . 2 2 4 d 5 5 d d 4 4 . . . 
+        . . 2 2 2 2 2 4 4 4 2 2 2 . . . 
+        . . . 2 2 4 4 4 4 4 4 2 2 . . . 
+        . . . . . 2 2 2 2 2 2 . . . . . 
+        `,img`
+        . . . . 2 2 2 2 2 2 2 2 . . . . 
+        . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
+        . 2 2 5 5 d 4 5 5 5 4 4 4 4 2 . 
+        . 2 4 5 5 5 5 d 5 5 5 4 5 4 2 2 
+        . 2 4 d d 5 5 5 5 5 5 d 4 4 4 2 
+        2 4 5 5 d 5 5 5 d d d 5 5 5 4 4 
+        2 4 5 5 4 4 4 d 5 5 d 5 5 5 4 4 
+        4 4 4 4 . . 2 4 5 5 . . 4 4 4 4 
+        . . b b b b 2 4 4 2 b b b b . . 
+        . b d d d d 2 4 4 2 d d d d b . 
+        b d d b b b 2 4 4 2 b b b d d b 
+        b d d b b b b b b b b b b d d b 
+        b b d 1 1 3 1 1 d 1 d 1 1 d b b 
+        . . b b d d 1 1 3 d d 1 b b . . 
+        . . 2 2 4 4 4 4 4 4 4 4 2 2 . . 
+        . . . 2 2 4 4 4 4 4 2 2 2 . . . 
+        `,img`
+        . . . . . . . . b b . . . . . . 
+        . . . . . . . . b b . . . . . . 
+        . . . b b b . . . . . . . . . . 
+        . . b d d b . . . . . . . b b . 
+        . b d d d b . . . . . . b d d b 
+        . b d d b . . . . b b . b d d b 
+        . b b b . . . . . b b . . b b . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . b b b d d d d d d b b b . . 
+        . b d c c c b b b b c c d d b . 
+        b d d c b . . . . . b c c d d b 
+        c d d b b . . . . . . b c d d c 
+        c b d d d b b . . . . b d d c c 
+        . c c b d d d d b . c c c c c c 
+        . . . c c c c c c . . . . . . . 
+        `],
+    100,
+    false
+    )
+    color.FadeToBlack.startScreenEffect(500)
+    color.pauseUntilFadeDone()
+    unloadAll()
+    pause(100)
+    setup_createLvl4()
 })
 function playerDamaged (energyLost: number, enemy: Sprite) {
     stbEnergy.value += energyLost + varExtraEnemyDmg
@@ -2972,7 +3229,8 @@ function Setup_CreateLvl3 (_continue: boolean, fromLevel: boolean) {
     bossCore = sprites.create(assets.image`coreGlassDestroyed`, SpriteKind.kndBossCore)
     tiles.placeOnTile(bossCore, tiles.getTileLocation(71, 49))
     bossCore.y += 8
-    tiles.createSpritesOnTiles(assets.tile`myTile23`, SpriteKind.kndEnemyTurret)
+    tiles.createSpritesOnTiles(assets.tile`myTile8`, SpriteKind.kndEnemyTurret)
+    tiles.createSpritesOnTiles(assets.tile`myTile23`, SpriteKind.kndEnemyTurretV)
     varEtankId = 5
     tiles.createSpritesOnTiles(assets.tile`myTile3`, SpriteKind.blueDoor)
     tiles.createSpritesOnTiles(assets.tile`myTile9`, SpriteKind.orangeDoor)
@@ -2984,6 +3242,7 @@ function Setup_CreateLvl3 (_continue: boolean, fromLevel: boolean) {
         tiles.replaceAllTiles(assets.tile`myTile15`, assets.tile`transparency16`)
         tiles.replaceAllTiles(assets.tile`ridleyGlass0`, assets.tile`transparency16`)
         tiles.replaceAllTiles(assets.tile`ridleyGlass1`, assets.tile`transparency16`)
+        tiles.replaceAllTiles(assets.tile`myTile8`, assets.tile`transparency16`)
         tiles.replaceAllTiles(assets.tile`myTile23`, assets.tile`transparency16`)
     })
     if (_continue) {
@@ -3138,6 +3397,7 @@ controller.B.onEvent(ControllerButtonEvent.Released, function () {
         } else if (varDirection == 2) {
             projChargeBeam.setVelocity(250, 0)
         }
+        music.pewPew.play()
     } else if (varChargeBeamActivate >= 1 && varChargeBeamActivate < 25) {
         for (let value of sprites.allOfKind(SpriteKind.kndChargeBeam)) {
             value.destroy(effects.disintegrate, 200)
@@ -4179,11 +4439,9 @@ sprites.onCreated(SpriteKind.kndEnemyKaiju, function (sprite) {
     sprite.ay = 500
 })
 sprites.onOverlap(SpriteKind.kndProjPowerBomb, SpriteKind.kndPowerBombGlass, function (sprite, otherSprite) {
-    varPowerBombGlassLocation = 13
     for (let value of sprites.allOfKind(SpriteKind.kndPowerBombGlass)) {
-        tiles.setWallAt(tiles.getTileLocation(185, varPowerBombGlassLocation), false)
-        value.destroy(effects.coolRadial, 500)
-        varPowerBombGlassLocation += 1
+        tiles.setWallAt(tiles.locationOfSprite(value), false)
+        value.destroy(effects.warmRadial, 500)
     }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndSaveStation, function (sprite, otherSprite) {
@@ -4203,7 +4461,7 @@ sprites.onCreated(SpriteKind.redDoor, function (sprite) {
     sprite.setImage(assets.image`doorRed`)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndBossKraid, function (sprite, otherSprite) {
-    playerDamaged(15, otherSprite)
+    playerDamaged(-15, otherSprite)
 })
 function saveRecharge () {
     stbEnergy.value = stbEnergy.max
@@ -4275,7 +4533,7 @@ function saveRecharge () {
     }
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidSnake, function (sprite, otherSprite) {
-    playerDamaged(10, otherSprite)
+    playerDamaged(-10, otherSprite)
 })
 sprites.onCreated(SpriteKind.kndRidleyGlass, function (sprite) {
     sprite.setImage(img`
@@ -4657,6 +4915,10 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndSnakeSpit, function (sprite, 
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyCrawler, function (sprite, otherSprite) {
     hitEnemy(-2, sprite, otherSprite)
 })
+sprites.onOverlap(SpriteKind.kndSuperMissile, SpriteKind.kndBossRidley, function (sprite, otherSprite) {
+    sprite.destroy()
+    Boss_Defeat_Ridley()
+})
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndBossCore, function (sprite, otherSprite) {
     hitEnemy(-1, sprite, otherSprite)
 })
@@ -4688,13 +4950,11 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile10`, function (sprite, 
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile27`, function (sprite, location) {
     if (varBattlingRidley == 0) {
-        varBattlingRidley = 1
+        varBattlingRidley = 0.5
         Boss_Ridley()
         for (let value of sprites.allOfKind(SpriteKind.blueDoor)) {
             value.setKind(SpriteKind.lockedDoor)
-            timer.after(3000, function () {
-                value.setImage(assets.image`doorLocked`)
-            })
+            value.setImage(assets.image`doorLocked`)
         }
     }
 })
@@ -4786,6 +5046,26 @@ function Boss_Kraid_Defeat (kraid: Sprite) {
     tiles.setTileAt(tiles.getTileLocation(147, 9), assets.tile`4x4block2`)
     tiles.setTileAt(tiles.getTileLocation(148, 9), assets.tile`4x4block3`)
 }
+sprites.onCreated(SpriteKind.kndEnemyTurretV, function (sprite) {
+    sprite.setImage(img`
+        . . . . . f f f f f f . . . . . 
+        . . . f f 1 1 1 1 1 1 f f . . . 
+        . . f f 1 1 1 1 1 1 1 1 f f . . 
+        . f f 1 d 1 1 1 1 1 1 1 1 f f . 
+        . f 1 d 1 1 1 1 1 1 1 1 1 1 f . 
+        f 1 d d 1 1 1 1 1 1 1 1 1 1 1 f 
+        f 1 d 1 1 1 1 1 1 1 1 1 1 1 1 f 
+        f 1 d 1 1 1 1 1 1 1 1 1 1 1 1 f 
+        f d d d 1 1 1 1 1 1 1 1 1 1 1 f 
+        f d d d 1 1 1 1 1 1 1 1 1 d 1 f 
+        f d d d d 1 1 1 1 1 1 1 d d 1 f 
+        . f d d d d d 1 1 1 1 d d d f . 
+        . f d d d d d d d d d d d f f . 
+        . . f d d d d d d d d d f f . . 
+        . . . f f d d d d d d f f . . . 
+        . . . . . f f f f f f . . . . . 
+        `)
+})
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndEnemyCrawler, function (sprite, otherSprite) {
     if (varCrawlerShelled == false) {
         sprite.destroy()
@@ -5157,62 +5437,77 @@ function unloadAll () {
     varEnryloMusic = false
     varNorinMusic = false
     varCallarisMusic = false
+    varEscapeMusic = false
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndBossRidley, function (sprite, otherSprite) {
+    playerDamaged(-20, otherSprite)
+})
+scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleInsignia, function (sprite, location) {
+    tiles.placeOnTile(plrSamus, tiles.getTileLocation(90, 16))
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile26`, function (sprite, location) {
     if (controller.up.isPressed() && varElevatorActive == false) {
         timer.throttle("action", 500, function () {
-            varElevatorFromLevel = 3
-            activateElevator(1, 76, 7, img`
-                ......................eee.......................
-                .....................e242e......................
-                ....................ee444ee.....................
-                ...............ee4e2e72427e2e4ee................
-                ..............e4dd4ee6dd66ee4dd4e...............
-                .............e4ddddebe6d6ebedddd4e..............
-                ..............ee4ddeebebebeedd4ee...............
-                ..............e4eeeeeeeee7eeeee4e...............
-                ..............fbbfee22eee72eefbbf...............
-                ..............4ddeee2224227eeedd4...............
-                ..............4ddeeee2ddd2eeeedd4...............
-                ..............ed4e.eeeedeeee.e4de...............
-                ..............ebbe.eee444eee.ebeee..............
-                .............fffff..e4e4e4e..ee4de..............
-                ............f677f7f.ee4d4ee..e4dde..............
-                ............f677f7f.e4e4e4e..edd4e..............
-                ............f766fffeee4d4eee..dd4e..............
-                ............ff667fe44fe4ef44e.4de...............
-                .............f667fedd4fef4dde.ede...............
-                .............f667fedddeeeddde.e4e...............
-                .............f667feddde.edddeedd4...............
-                .............f7fffedd4e.e4dde4edd...............
-                .............f667fe4de...ed4ee44e...............
-                .............f7fffee4e...e4ee.ee................
-                .............f67ffedee...eede...................
-                ..............fff.ed4e...e4de...................
-                ..................4d4ee.ee4d4...................
-                ..................4deee.eeed4...................
-                ..................e4e4e.e4e4e...................
-                ..................eed4e.e4dee...................
-                ..................edde...edde...................
-                ..................4dde...edd4...................
-                ..................4d4e...e4d4...................
-                ..................dde.....edd...................
-                ..................dde.....edd...................
-                ..................4de.....ed4...................
-                .................ee4e.....e4ee..................
-                ................e4ddee...eedd4e.................
-                ...............e4dd4ee...ee4dd4e................
-                ...............fbbbfff...fffbbbf................
-                .9999999999999999999999999999999999999999999999.
-                ddffffffffffffffffffffffffffffffffffffffffffffdd
-                .dddddddddddddddddddddddddddddddddddddddddddddd.
-                `, false)
+            if (varLevelState == 4) {
+                game.over(true)
+            } else {
+                varElevatorFromLevel = 3
+                activateElevator(1, 76, 7, img`
+                    ......................eee.......................
+                    .....................e242e......................
+                    ....................ee444ee.....................
+                    ...............ee4e2e72427e2e4ee................
+                    ..............e4dd4ee6dd66ee4dd4e...............
+                    .............e4ddddebe6d6ebedddd4e..............
+                    ..............ee4ddeebebebeedd4ee...............
+                    ..............e4eeeeeeeee7eeeee4e...............
+                    ..............fbbfee22eee72eefbbf...............
+                    ..............4ddeee2224227eeedd4...............
+                    ..............4ddeeee2ddd2eeeedd4...............
+                    ..............ed4e.eeeedeeee.e4de...............
+                    ..............ebbe.eee444eee.ebeee..............
+                    .............fffff..e4e4e4e..ee4de..............
+                    ............f677f7f.ee4d4ee..e4dde..............
+                    ............f677f7f.e4e4e4e..edd4e..............
+                    ............f766fffeee4d4eee..dd4e..............
+                    ............ff667fe44fe4ef44e.4de...............
+                    .............f667fedd4fef4dde.ede...............
+                    .............f667fedddeeeddde.e4e...............
+                    .............f667feddde.edddeedd4...............
+                    .............f7fffedd4e.e4dde4edd...............
+                    .............f667fe4de...ed4ee44e...............
+                    .............f7fffee4e...e4ee.ee................
+                    .............f67ffedee...eede...................
+                    ..............fff.ed4e...e4de...................
+                    ..................4d4ee.ee4d4...................
+                    ..................4deee.eeed4...................
+                    ..................e4e4e.e4e4e...................
+                    ..................eed4e.e4dee...................
+                    ..................edde...edde...................
+                    ..................4dde...edd4...................
+                    ..................4d4e...e4d4...................
+                    ..................dde.....edd...................
+                    ..................dde.....edd...................
+                    ..................4de.....ed4...................
+                    .................ee4e.....e4ee..................
+                    ................e4ddee...eedd4e.................
+                    ...............e4dd4ee...ee4dd4e................
+                    ...............fbbbfff...fffbbbf................
+                    .9999999999999999999999999999999999999999999999.
+                    ddffffffffffffffffffffffffffffffffffffffffffffdd
+                    .dddddddddddddddddddddddddddddddddddddddddddddd.
+                    `, false)
+            }
         })
     }
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndRidleyBat, function (sprite, otherSprite) {
+    playerDamaged(-15, otherSprite)
 })
 let projSnakeSpit: Sprite = null
 let kraidBullet: Sprite = null
 let kraidClaw: Sprite = null
+let projTurretBullet: Sprite = null
 let kraidSnake: Sprite = null
 let enemyBabyKaiju: Sprite = null
 let projKaijuEgg: Sprite = null
@@ -5220,12 +5515,8 @@ let projKaijuFire: Sprite = null
 let varCrawlerShelled = false
 let wallCol = 0
 let wallRow = 0
-let varPowerBombGlassLocation = 0
-let varBattlingRidley = 0
 let varBattlingKraid = 0
-let varBossesDefeated = 0
 let bossCore: Sprite = null
-let varRidleyGlassLocation = 0
 let varDoorRow = 0
 let varDoorCol = 0
 let kraid: Sprite = null
@@ -5240,37 +5531,42 @@ let varChargeBeamActivate = 0
 let varBarrierFound = false
 let varAtSaveStation = 0
 let varElevatorFromLevel = 0
-let bossRidley: Sprite = null
+let bossRidleyFireball: Sprite = null
 let stbEnergy: StatusBarSprite = null
 let varTitleMusic = false
-let varExtraEnemyHealth = 0
 let varElevatorActive = false
 let varMorphBallFound = false
 let itemMorphBall: Sprite = null
+let varEscapeMusic = false
 let arrMissileFound: number[] = []
 let varMissile1Found = false
 let varMissileGetCheck = false
 let varCallarisMusic = false
 let txtContinue: TextSprite = null
-let varGameStarted = 0
 let txtNewGame: TextSprite = null
 let txtName: TextSprite = null
 let txtLogo: TextSprite = null
-let txtMissileCounter: TextSprite = null
 let projMissile: Sprite = null
-let stbMissiles: StatusBarSprite = null
 let projPowerBeam: Sprite = null
 let varSelectedMissile = 0
 let varDirection = 0
 let projPowerBomb: Sprite = null
 let varJumpStatus = 0
-let varExtraEnemyDmg = 0
 let varChargeBeamFound = false
 let varEnryloMusic = false
+let bossRidley: Sprite = null
+let varBossesDefeated = 0
+let varExtraEnemyDmg = 0
+let varExtraEnemyHealth = 0
+let txtMissileCounter: TextSprite = null
+let stbMissiles: StatusBarSprite = null
 let varItemGetMusic = false
 let varNorinMusic = false
 let othrCursor: Sprite = null
 let othrCursorPosition = 0
+let plrSamus: Sprite = null
+let varLevelState = 0
+let varBattlingRidley = 0
 let varMissileId = 0
 let varEtankId = 0
 let itemSuperMissile: Sprite = null
@@ -5279,14 +5575,10 @@ let itemPowerBomb: Sprite = null
 let varPowerBombFound = false
 let varHighJumpFound = false
 let saveStation: Sprite = null
-let plrSamus: Sprite = null
-let varLevelState = 0
-music.setVolume(20)
-varLevelState = 2
-Setup_createSamus()
-Setup_createLevel2(false, false)
-testing_give_all_items()
-tiles.placeOnTile(plrSamus, tiles.getTileLocation(95, 50))
+let varGameStarted = 0
+music.setVolume(40)
+varGameStarted = blockSettings.readNumber("gameStarted")
+Setup_Title_Screen()
 game.onUpdateInterval(randint(2500, 5000), function () {
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyKaiju)) {
         value.setVelocity(0, 0)
@@ -6523,6 +6815,114 @@ game.onUpdateInterval(randint(1500, 3000), function () {
         )
     }
 })
+game.onUpdateInterval(randint(1500, 3000), function () {
+    if (varBattlingKraid == 1) {
+        kraidSnake = sprites.create(img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `, SpriteKind.kndKraidSnake)
+        tiles.placeOnTile(kraidSnake, tiles.getTileLocation(145, 14))
+        kraidSnake.setVelocity(-100, 0)
+        animation.runImageAnimation(
+        kraidSnake,
+        [img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `,img`
+            . . . c c c c c c . . . . . . . 
+            . . c 6 7 7 7 7 6 c . . . . . . 
+            . c 7 7 7 7 7 7 7 7 c . . . . . 
+            c 6 7 7 7 7 7 7 7 7 6 c . . . . 
+            c 7 c 6 6 6 6 c 7 7 7 c . . . . 
+            f 7 6 f 6 6 f 6 7 7 7 f . . . . 
+            f 7 7 7 7 7 7 7 7 7 7 f . . . . 
+            . f 7 7 7 7 6 c 7 7 6 f . . . . 
+            . . f c c c c 7 7 6 f c c c . . 
+            . . c 6 2 7 7 7 f c c 7 7 7 c . 
+            . c 6 7 7 2 7 7 c f 6 7 7 7 7 c 
+            . c 1 1 1 1 7 6 6 c 6 6 6 c c c 
+            . c 1 1 1 1 1 6 6 6 6 6 6 c . . 
+            . c 6 1 1 1 1 1 6 6 6 6 6 c . . 
+            . . c 6 1 1 1 1 1 7 6 6 c c . . 
+            . . . c c c c c c c c c c . . . 
+            `],
+        100,
+        true
+        )
+    }
+})
+game.onUpdateInterval(1000, function () {
+    for (let value of sprites.allOfKind(SpriteKind.kndEnemyTurret)) {
+        projTurretBullet = sprites.createProjectileFromSprite(img`
+            . . 6 6 6 6 . . 
+            . 6 1 4 4 4 6 . 
+            6 d 4 4 4 4 4 6 
+            c b b 1 1 4 d c 
+            . c b b 4 1 c . 
+            . . c c c c . . 
+            `, value, 100, 0)
+        projTurretBullet = sprites.createProjectileFromSprite(img`
+            . . 6 6 6 6 . . 
+            . 6 4 4 4 1 6 . 
+            6 4 4 4 4 4 d 6 
+            c d 4 1 1 b b c 
+            . c 1 4 b b c . 
+            . . c c c c . . 
+            `, value, -100, 0)
+        value.setKind(SpriteKind.kndProjTurret)
+    }
+    for (let value of sprites.allOfKind(SpriteKind.kndEnemyTurretV)) {
+        projTurretBullet = sprites.createProjectileFromSprite(img`
+            . . 6 c . . 
+            . 6 4 d c . 
+            6 4 4 4 1 c 
+            6 4 4 1 4 c 
+            6 4 4 1 b c 
+            6 1 4 b b c 
+            . 6 d b c . 
+            . . 6 c . . 
+            `, value, 0, 100)
+        projTurretBullet = sprites.createProjectileFromSprite(img`
+            . . 6 c . . 
+            . 6 d b c . 
+            6 1 4 b b c 
+            6 4 4 1 b c 
+            6 4 4 1 4 c 
+            6 4 4 4 1 c 
+            . 6 4 d c . 
+            . . 6 c . . 
+            `, value, 0, -100)
+        value.setKind(SpriteKind.kndProjTurret)
+    }
+})
 game.onUpdateInterval(randint(750, 2000), function () {
     if (varBattlingKraid == 1) {
         for (let value of sprites.allOfKind(SpriteKind.kndBossKraid)) {
@@ -7075,6 +7475,107 @@ game.onUpdateInterval(500, function () {
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyCrawler)) {
         if (varCrawlerShelled == false) {
             value.setVelocity(randint(-10, 10), 0)
+        }
+    }
+})
+game.onUpdateInterval(randint(3000, 6000), function () {
+    if (varBattlingRidley == 1) {
+        for (let index = 0; index <= randint(1, 3); index++) {
+            kraidSnake = sprites.create(img`
+                . . f f f . . . . . . . . f f f 
+                . f f c c . . . . . . f c b b c 
+                f f c c . . . . . . f c b b c . 
+                f c f c . . . . . . f b c c c . 
+                f f f c c . c c . f c b b c c . 
+                f f c 3 c c 3 c c f b c b b c . 
+                f f b 3 b c 3 b c f b c c b c . 
+                . c b b b b b b c b b c c c . . 
+                . c 1 b b b 1 b b c c c c . . . 
+                c b b b b b b b b b c c . . . . 
+                c b c b b b c b b b b f . . . . 
+                f b 1 f f f 1 b b b b f c . . . 
+                f b b b b b b b b b b f c c . . 
+                . f b b b b b b b b c f . . . . 
+                . . f b b b b b b c f . . . . . 
+                . . . f f f f f f f . . . . . . 
+                `, SpriteKind.kndRidleyBat)
+            kraidSnake.setFlag(SpriteFlag.DestroyOnWall, true)
+            tiles.placeOnTile(kraidSnake, tiles.getTileLocation(111, 52 - index))
+            kraidSnake.setVelocity(-100, 0)
+            animation.runImageAnimation(
+            kraidSnake,
+            [img`
+                . . f f f . . . . . . . . f f f 
+                . f f c c . . . . . . f c b b c 
+                f f c c . . . . . . f c b b c . 
+                f c f c . . . . . . f b c c c . 
+                f f f c c . c c . f c b b c c . 
+                f f c 3 c c 3 c c f b c b b c . 
+                f f b 3 b c 3 b c f b c c b c . 
+                . c b b b b b b c b b c c c . . 
+                . c 1 b b b 1 b b c c c c . . . 
+                c b b b b b b b b b c c . . . . 
+                c b c b b b c b b b b f . . . . 
+                f b 1 f f f 1 b b b b f c . . . 
+                f b b b b b b b b b b f c c . . 
+                . f b b b b b b b b c f . . . . 
+                . . f b b b b b b c f . . . . . 
+                . . . f f f f f f f . . . . . . 
+                `,img`
+                . . f f f . . . . . . . . . . . 
+                f f f c c . . . . . . . . f f f 
+                f f c c . . c c . . . f c b b c 
+                f f c 3 c c 3 c c f f b b b c . 
+                f f b 3 b c 3 b c f b b c c c . 
+                . c b b b b b b c f b c b c c . 
+                . c b b b b b b c b b c b b c . 
+                c b 1 b b b 1 b b b c c c b c . 
+                c b b b b b b b b c c c c c . . 
+                f b c b b b c b b b b f c . . . 
+                f b 1 f f f 1 b b b b f c c . . 
+                . f b b b b b b b b c f . . . . 
+                . . f b b b b b b c f . . . . . 
+                . . . f f f f f f f . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `,img`
+                . . . . . . . . . . . . . . . . 
+                . . c c . . c c . . . . . . . . 
+                . . c 3 c c 3 c c c . . . . . . 
+                . c b 3 b c 3 b c c c . . . . . 
+                . c b b b b b b b b f f . . . . 
+                c c b b b b b b b b f f . . . . 
+                c b 1 b b b 1 b b c f f f . . . 
+                c b b b b b b b b f f f f . . . 
+                f b c b b b c b c c b b b . . . 
+                f b 1 f f f 1 b f c c c c . . . 
+                . f b b b b b b f b b c c . . . 
+                c c f b b b b b c c b b c . . . 
+                c c c f f f f f f c c b b c . . 
+                . c c c . . . . . . c c c c c . 
+                . . c c c . . . . . . . c c c c 
+                . . . . . . . . . . . . . . . . 
+                `,img`
+                . f f f . . . . . . . . f f f . 
+                f f c . . . . . . . f c b b c . 
+                f c c . . . . . . f c b b c . . 
+                c f . . . . . . . f b c c c . . 
+                c f f . . . . . f f b b c c . . 
+                f f f c c . c c f b c b b c . . 
+                f f f c c c c c f b c c b c . . 
+                . f c 3 c c 3 b c b c c c . . . 
+                . c b 3 b c 3 b b c c c c . . . 
+                c c b b b b b b b b c c . . . . 
+                c b 1 b b b 1 b b b b f c . . . 
+                f b b b b b b b b b b f c c . . 
+                f b c b b b c b b b b f . . . . 
+                . f 1 f f f 1 b b b c f . . . . 
+                . . f b b b b b b c f . . . . . 
+                . . . f f f f f f f . . . . . . 
+                `],
+            100,
+            true
+            )
         }
     }
 })
