@@ -39,6 +39,10 @@ namespace SpriteKind {
     export const kndEnemyTurret = SpriteKind.create()
     export const kndBossKraid = SpriteKind.create()
     export const kndKraidSnake = SpriteKind.create()
+    export const kndKraidClaw = SpriteKind.create()
+    export const kndKraidBullet = SpriteKind.create()
+    export const lockedDoor = SpriteKind.create()
+    export const kndBossRidley = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const healthEnergy = StatusBarKind.create()
@@ -113,6 +117,9 @@ function Setup_createLevel2 (_continue: boolean, fromLevel: boolean) {
         Song_Norin_lvl2()
     })
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidClaw, function (sprite, otherSprite) {
+    playerDamaged(20, otherSprite)
+})
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyBat, function (sprite, otherSprite) {
     hitEnemy(-3, sprite, otherSprite)
 })
@@ -152,6 +159,17 @@ function Song_Part_Enrylo_lvl1_Bass_2026 () {
     music.playTone(123.47, music.beat(BeatFraction.Half))
     music.playTone(165, music.beat(BeatFraction.Whole))
     music.rest(music.beat(BeatFraction.Half))
+}
+function Boss_Defeat_Ridley () {
+    scene.cameraShake(4, 500)
+    tiles.setWallAt(tiles.getTileLocation(110, 40), true)
+    tiles.setWallAt(tiles.getTileLocation(107, 44), true)
+    tiles.setWallAt(tiles.getTileLocation(110, 48), true)
+    tiles.setWallAt(tiles.getTileLocation(107, 50), true)
+    tiles.setTileAt(tiles.getTileLocation(110, 40), assets.tile`templeGround13`)
+    tiles.setTileAt(tiles.getTileLocation(107, 44), assets.tile`templeGround13`)
+    tiles.setTileAt(tiles.getTileLocation(110, 48), assets.tile`templeGround13`)
+    tiles.setTileAt(tiles.getTileLocation(107, 50), assets.tile`templeGround13`)
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndItemChargeBean, function (sprite, otherSprite) {
     otherSprite.destroy()
@@ -943,11 +961,17 @@ function Song_Title_Theme () {
         Song_Title_Theme()
     }
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile22`, function (sprite, location) {
+    timer.throttle("action", 250, function () {
+        stbEnergy.value += -4
+        stbEnergy.setLabel(convertToText(stbEnergy.value), 5)
+    })
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKaijuEgg, function (sprite, otherSprite) {
     playerDamaged(-5 - varExtraEnemyDmg, sprite)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndEnemySnakes, function (sprite, otherSprite) {
-    playerDamaged(-20 - varExtraEnemyDmg, sprite)
+    playerDamaged(-10 - varExtraEnemyDmg, sprite)
 })
 sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.kndEnemyBabyKaiju, function (sprite, otherSprite) {
     hitEnemy(-2, sprite, otherSprite)
@@ -955,6 +979,94 @@ sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.kndEnemyBabyKaiju, functi
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndEnemyBat, function (sprite, otherSprite) {
     playerDamaged(-15 - varExtraEnemyDmg, sprite)
 })
+function Boss_Ridley () {
+    bossRidley = sprites.create(assets.image`ridleyStand`, SpriteKind.kndBossRidley)
+    tiles.placeOnTile(bossRidley, tiles.getTileLocation(100, 51))
+    timer.after(5000, function () {
+        let mySprite: Sprite = null
+        for (let index = 0; index < 2; index++) {
+            animation.runImageAnimation(
+            bossRidley,
+            assets.animation`ridleyFlyLeft`,
+            200,
+            true
+            )
+            animation.runMovementAnimation(
+            bossRidley,
+            animation.animationPresets(animation.easeUp),
+            2000,
+            false
+            )
+            pause(2000)
+            bossRidley.setVelocity(-16, 94)
+            pause(1000)
+            bossRidley.setVelocity(0, 0)
+            pause(200)
+            for (let index = 0; index < 10; index++) {
+                animation.runMovementAnimation(
+                bossRidley,
+                animation.animationPresets(animation.bobbingLeft),
+                500,
+                false
+                )
+                pause(550)
+            }
+            animation.runImageAnimation(
+            bossRidley,
+            assets.animation`ridleyFlyRight`,
+            200,
+            true
+            )
+            animation.runMovementAnimation(
+            bossRidley,
+            animation.animationPresets(animation.easeUp),
+            2000,
+            false
+            )
+            pause(2000)
+            bossRidley.setVelocity(16, 94)
+            pause(1000)
+            bossRidley.setVelocity(0, 0)
+            pause(100)
+            for (let index = 0; index < 10; index++) {
+                animation.runMovementAnimation(
+                bossRidley,
+                animation.animationPresets(animation.bobbingRight),
+                500,
+                false
+                )
+                pause(550)
+            }
+        }
+        story.spriteMoveToLocation(bossRidley, 100 * 16, 51 * 16, 100)
+        pause(100)
+        animation.stopAnimation(animation.AnimationTypes.All, bossRidley)
+        bossRidley.setImage(assets.image`ridleyStand`)
+        animation.runImageAnimation(
+        mySprite,
+        [img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `],
+        500,
+        false
+        )
+    })
+}
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile24`, function (sprite, location) {
     if (controller.up.isPressed() && varElevatorActive == false) {
         timer.throttle("action", 500, function () {
@@ -1049,12 +1161,14 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     }
 })
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava0, function (sprite, location) {
-    if (varBarrierFound) {
-        stbEnergy.value += -2
-    } else {
-        stbEnergy.value += -1
-    }
-    pause(250)
+    timer.throttle("action", 250, function () {
+        if (varBarrierFound) {
+            stbEnergy.value += -2
+        } else {
+            stbEnergy.value += -1
+        }
+        stbEnergy.setLabel(convertToText(stbEnergy.value), 5)
+    })
 })
 sprites.onCreated(SpriteKind.greenDoor, function (sprite) {
     sprite.setImage(assets.image`doorSuper`)
@@ -2295,6 +2409,9 @@ function Setup_createLevel1 (_continue: boolean, fromLevel: boolean) {
         Song_Enrylo_lvl1()
     })
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidBullet, function (sprite, otherSprite) {
+    playerDamaged(20, otherSprite)
+})
 controller.B.onEvent(ControllerButtonEvent.Repeated, function () {
     if (varChargeBeamFound == true) {
         if (varJumpStatus != -2) {
@@ -2483,12 +2600,14 @@ sprites.onOverlap(SpriteKind.kndProjPowerBomb, SpriteKind.kndRidleyGlass, functi
     }
 })
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava1, function (sprite, location) {
-    if (varBarrierFound) {
-        stbEnergy.value += -2
-    } else {
-        stbEnergy.value += -1
-    }
-    pause(250)
+    timer.throttle("action", 250, function () {
+        if (varBarrierFound) {
+            stbEnergy.value += -2
+        } else {
+            stbEnergy.value += -1
+        }
+        stbEnergy.setLabel(convertToText(stbEnergy.value), 5)
+    })
 })
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.blueDoor, function (sprite, otherSprite) {
     timer.throttle("action", 3000, function () {
@@ -4083,6 +4202,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndSaveStation, function (sprite
 sprites.onCreated(SpriteKind.redDoor, function (sprite) {
     sprite.setImage(assets.image`doorRed`)
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndBossKraid, function (sprite, otherSprite) {
+    playerDamaged(15, otherSprite)
+})
 function saveRecharge () {
     stbEnergy.value = stbEnergy.max
     stbMissiles.value = stbMissiles.max
@@ -4152,6 +4274,9 @@ function saveRecharge () {
         blockSettings.writeNumber("barrierFound", 0)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKraidSnake, function (sprite, otherSprite) {
+    playerDamaged(10, otherSprite)
+})
 sprites.onCreated(SpriteKind.kndRidleyGlass, function (sprite) {
     sprite.setImage(img`
         c c c c c c c c c c c c c c c c 
@@ -4562,7 +4687,16 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile10`, function (sprite, 
     }
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile27`, function (sprite, location) {
-	
+    if (varBattlingRidley == 0) {
+        varBattlingRidley = 1
+        Boss_Ridley()
+        for (let value of sprites.allOfKind(SpriteKind.blueDoor)) {
+            value.setKind(SpriteKind.lockedDoor)
+            timer.after(3000, function () {
+                value.setImage(assets.image`doorLocked`)
+            })
+        }
+    }
 })
 function Boss_Kraid_Defeat (kraid: Sprite) {
     varBattlingKraid = 2
@@ -5103,10 +5237,11 @@ let ctsnShip: Sprite = null
 let arrEtankFound: number[] = []
 let projChargeBeam: Sprite = null
 let varChargeBeamActivate = 0
-let stbEnergy: StatusBarSprite = null
 let varBarrierFound = false
 let varAtSaveStation = 0
 let varElevatorFromLevel = 0
+let bossRidley: Sprite = null
+let stbEnergy: StatusBarSprite = null
 let varTitleMusic = false
 let varExtraEnemyHealth = 0
 let varElevatorActive = false
@@ -5151,7 +5286,7 @@ varLevelState = 2
 Setup_createSamus()
 Setup_createLevel2(false, false)
 testing_give_all_items()
-tiles.placeOnTile(plrSamus, tiles.getTileLocation(74, 45))
+tiles.placeOnTile(plrSamus, tiles.getTileLocation(95, 50))
 game.onUpdateInterval(randint(2500, 5000), function () {
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyKaiju)) {
         value.setVelocity(0, 0)
@@ -6263,6 +6398,68 @@ game.onUpdateInterval(randint(2500, 5000), function () {
     }
 })
 game.onUpdateInterval(randint(1500, 3000), function () {
+    if (varBattlingRidley == 1) {
+        kraidSnake = sprites.create(img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `, SpriteKind.kndKraidSnake)
+        tiles.placeOnTile(kraidSnake, tiles.getTileLocation(145, 14))
+        kraidSnake.setVelocity(-100, 0)
+        animation.runImageAnimation(
+        kraidSnake,
+        [img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `,img`
+            . . . c c c c c c . . . . . . . 
+            . . c 6 7 7 7 7 6 c . . . . . . 
+            . c 7 7 7 7 7 7 7 7 c . . . . . 
+            c 6 7 7 7 7 7 7 7 7 6 c . . . . 
+            c 7 c 6 6 6 6 c 7 7 7 c . . . . 
+            f 7 6 f 6 6 f 6 7 7 7 f . . . . 
+            f 7 7 7 7 7 7 7 7 7 7 f . . . . 
+            . f 7 7 7 7 6 c 7 7 6 f . . . . 
+            . . f c c c c 7 7 6 f c c c . . 
+            . . c 6 2 7 7 7 f c c 7 7 7 c . 
+            . c 6 7 7 2 7 7 c f 6 7 7 7 7 c 
+            . c 1 1 1 1 7 6 6 c 6 6 6 c c c 
+            . c 1 1 1 1 1 6 6 6 6 6 6 c . . 
+            . c 6 1 1 1 1 1 6 6 6 6 6 c . . 
+            . . c 6 1 1 1 1 1 7 6 6 c c . . 
+            . . . c c c c c c c c c c . . . 
+            `],
+        100,
+        true
+        )
+    }
     if (varBattlingKraid == 1) {
         kraidSnake = sprites.create(img`
             . . . . c c c c c c . . . . . . 
@@ -6332,6 +6529,7 @@ game.onUpdateInterval(randint(750, 2000), function () {
             if (Math.percentChance(33.3)) {
                 kraid.setVelocity(0, 0)
                 kraidClaw = sprites.createProjectileFromSprite(assets.image`kraidSlash`, value, -100, 0)
+                kraidClaw.setKind(SpriteKind.kndKraidClaw)
                 animation.runImageAnimation(
                 kraidClaw,
                 [img`
@@ -6417,6 +6615,7 @@ game.onUpdateInterval(randint(750, 2000), function () {
                 timer.after(550, function () {
                     for (let index = 0; index < 4; index++) {
                         kraidBullet = sprites.createProjectileFromSprite(assets.image`kraidProjectile`, value, -100, 0)
+                        kraidBullet.setKind(SpriteKind.kndKraidBullet)
                         kraidBullet.y += -9
                         pause(100)
                     }
