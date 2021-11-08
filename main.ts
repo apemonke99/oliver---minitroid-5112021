@@ -37,6 +37,8 @@ namespace SpriteKind {
     export const kndSaveStation = SpriteKind.create()
     export const kndBossCore = SpriteKind.create()
     export const kndEnemyTurret = SpriteKind.create()
+    export const kndBossKraid = SpriteKind.create()
+    export const kndKraidSnake = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const healthEnergy = StatusBarKind.create()
@@ -1046,8 +1048,23 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         story.clearAllText()
     }
 })
+scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava0, function (sprite, location) {
+    if (varBarrierFound) {
+        stbEnergy.value += -2
+    } else {
+        stbEnergy.value += -1
+    }
+    pause(250)
+})
 sprites.onCreated(SpriteKind.greenDoor, function (sprite) {
     sprite.setImage(assets.image`doorSuper`)
+})
+sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndBossKraid, function (sprite, otherSprite) {
+    sprite.destroy()
+    sprites.changeDataNumberBy(otherSprite, "enemyHealth", -2)
+    if (sprites.readDataNumber(otherSprite, "enemyHealth") <= 0) {
+        Boss_Kraid_Defeat(otherSprite)
+    }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndItemPowerBomb, function (sprite, otherSprite) {
     otherSprite.destroy()
@@ -2043,6 +2060,13 @@ controller.left.onEvent(ControllerButtonEvent.Released, function () {
 sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.kndEnemySnakes, function (sprite, otherSprite) {
     hitEnemy(-3, sprite, otherSprite)
 })
+sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndBossKraid, function (sprite, otherSprite) {
+    sprite.destroy()
+    sprites.changeDataNumberBy(otherSprite, "enemyHealth", -1)
+    if (sprites.readDataNumber(otherSprite, "enemyHealth") <= 0) {
+        Boss_Kraid_Defeat(otherSprite)
+    }
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndKaijuBigFire, function (sprite, otherSprite) {
     playerDamaged(-40 - varExtraEnemyDmg, sprite)
 })
@@ -2348,6 +2372,19 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile16`, function (sprite, 
         })
     }
 })
+function Boss_Kraid () {
+    kraid = sprites.create(assets.image`kraidClosedMouth_1`, SpriteKind.kndBossKraid)
+    tiles.placeOnTile(kraid, tiles.getTileLocation(140, 13))
+    kraid.y += -4
+    characterAnimations.loopFrames(
+    kraid,
+    assets.animation`kraidClosed0`,
+    1000,
+    characterAnimations.rule(Predicate.Moving)
+    )
+    kraid.setVelocity(5, 0)
+    sprites.setDataNumber(kraid, "enemyHealth", 30)
+}
 function closeDoor (doorCol: number, doorRow: number) {
     varDoorCol = doorCol
     varDoorRow = doorRow
@@ -2445,6 +2482,14 @@ sprites.onOverlap(SpriteKind.kndProjPowerBomb, SpriteKind.kndRidleyGlass, functi
         varRidleyGlassLocation += 1
     }
 })
+scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava1, function (sprite, location) {
+    if (varBarrierFound) {
+        stbEnergy.value += -2
+    } else {
+        stbEnergy.value += -1
+    }
+    pause(250)
+})
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.blueDoor, function (sprite, otherSprite) {
     timer.throttle("action", 3000, function () {
         sprite.destroy()
@@ -2505,7 +2550,7 @@ sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.orangeDoor, function (spr
     })
 })
 function playerDamaged (energyLost: number, enemy: Sprite) {
-    stbEnergy.value += energyLost
+    stbEnergy.value += energyLost + varExtraEnemyDmg
     stbEnergy.setLabel(convertToText(stbEnergy.value))
     plrSamus.setFlag(SpriteFlag.GhostThroughSprites, true)
     timer.after(1000, function () {
@@ -2846,15 +2891,18 @@ function Setup_CreateLvl3 (_continue: boolean, fromLevel: boolean) {
 function continueGame () {
     color.FadeToBlack.startScreenEffect(1000)
     color.pauseUntilFadeDone()
-    varLevelState = blockSettings.readNumber("levelState")
     Setup_createSamus()
+    varLevelState = blockSettings.readNumber("levelState")
     varBossesDefeated = blockSettings.readNumber("bossesDefeated")
     energyBarWidth = blockSettings.readNumber("energyWidth")
     stbEnergy.max = blockSettings.readNumber("energyMax")
     stbEnergy.setBarSize(energyBarWidth, 7)
     stbEnergy.value = stbEnergy.max
+    stbEnergy.setLabel(convertToText(stbEnergy.value), 5)
     varExtraEnemyDmg = blockSettings.readNumber("extraEnemyDmg")
     varExtraEnemyHealth = blockSettings.readNumber("extraEnemyHealth")
+    varBattlingKraid = blockSettings.readNumber("battlingKraid")
+    varBattlingRidley = blockSettings.readNumber("battlingRidley")
     arrMissileFound = blockSettings.readNumberArray("missilesFound")
     arrEtankFound = blockSettings.readNumberArray("etanksFound")
     if (blockSettings.readNumber("morphBallFound") == 1) {
@@ -2999,7 +3047,7 @@ sprites.onCreated(SpriteKind.kndEnemyCrawler, function (sprite) {
         `)
     sprite.ay = 500
     sprite.setVelocity(randint(-10, 10), 0)
-    sprites.setDataNumber(sprite, "enemyHealth", 2)
+    sprites.setDataNumber(sprite, "enemyHealth", 2 + varExtraEnemyHealth)
     characterAnimations.loopFrames(
     sprite,
     [img`
@@ -4007,7 +4055,7 @@ sprites.onCreated(SpriteKind.kndEnemyKaiju, function (sprite) {
     100,
     characterAnimations.rule(Predicate.MovingRight)
     )
-    sprites.setDataNumber(sprite, "enemyHealth", 10 + varExtraEnemyHealth)
+    sprites.setDataNumber(sprite, "enemyHealth", 8 + varExtraEnemyHealth)
     sprite.setVelocity(randint(-10, 10), 0)
     sprite.ay = 500
 })
@@ -4048,6 +4096,8 @@ function saveRecharge () {
     blockSettings.writeNumber("missilesMax", stbMissiles.max)
     blockSettings.writeNumber("extraEnemyDmg", varExtraEnemyDmg)
     blockSettings.writeNumber("extraEnemyHealth", varExtraEnemyHealth)
+    blockSettings.writeNumber("battlingKraid", varBattlingKraid)
+    blockSettings.writeNumber("battlingRidley", varBattlingRidley)
     blockSettings.writeNumberArray("missilesFound", [
     arrMissileFound[0],
     arrMissileFound[1],
@@ -4488,6 +4538,120 @@ sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndBossCore, function (spr
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyKaiju, function (sprite, otherSprite) {
     hitEnemy(-3, sprite, otherSprite)
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile10`, function (sprite, location) {
+    if (varBattlingKraid == 0) {
+        varBattlingKraid = 1
+        scene.cameraShake(4, 500)
+        wallRow = 124
+        for (let index = 0; index < 2; index++) {
+            wallCol = 9
+            for (let index = 0; index < 6; index++) {
+                tiles.setWallAt(tiles.getTileLocation(wallRow, wallCol), true)
+                tiles.setTileAt(tiles.getTileLocation(wallRow, wallCol), assets.tile`4x4block4`)
+                wallCol += 1
+            }
+            wallCol = 9
+            for (let index = 0; index < 6; index++) {
+                tiles.setWallAt(tiles.getTileLocation(wallRow + 1, wallCol), true)
+                tiles.setTileAt(tiles.getTileLocation(wallRow + 1, wallCol), assets.tile`4x4block5`)
+                wallCol += 1
+            }
+            wallRow = 147
+        }
+        Boss_Kraid()
+    }
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile27`, function (sprite, location) {
+	
+})
+function Boss_Kraid_Defeat (kraid: Sprite) {
+    varBattlingKraid = 2
+    kraid.setVelocity(0, 0)
+    kraid.setFlag(SpriteFlag.GhostThroughSprites, true)
+    animation.runImageAnimation(
+    kraid,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . 4 4 4 4 4 . . . . . . 
+        . . . 4 4 4 5 5 5 d 4 4 4 4 . . 
+        . . 4 d 5 d 5 5 5 d d d 4 4 . . 
+        . . 4 5 5 1 1 1 d d 5 5 5 4 . . 
+        . 4 5 5 5 1 1 1 5 1 1 5 5 4 4 . 
+        . 4 d d 1 1 5 5 5 1 1 5 5 d 4 . 
+        . 4 5 5 1 1 5 1 1 5 5 d d d 4 . 
+        . 2 5 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . 2 d 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . . 2 4 d d 5 5 5 5 d d 5 4 . . 
+        . . . 2 2 4 d 5 5 d d 4 4 . . . 
+        . . 2 2 2 2 2 4 4 4 2 2 2 . . . 
+        . . . 2 2 4 4 4 4 4 4 2 2 . . . 
+        . . . . . 2 2 2 2 2 2 . . . . . 
+        `,img`
+        . . . . 2 2 2 2 2 2 2 2 . . . . 
+        . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
+        . 2 2 5 5 d 4 5 5 5 4 4 4 4 2 . 
+        . 2 4 5 5 5 5 d 5 5 5 4 5 4 2 2 
+        . 2 4 d d 5 5 5 5 5 5 d 4 4 4 2 
+        2 4 5 5 d 5 5 5 d d d 5 5 5 4 4 
+        2 4 5 5 4 4 4 d 5 5 d 5 5 5 4 4 
+        4 4 4 4 . . 2 4 5 5 . . 4 4 4 4 
+        . . b b b b 2 4 4 2 b b b b . . 
+        . b d d d d 2 4 4 2 d d d d b . 
+        b d d b b b 2 4 4 2 b b b d d b 
+        b d d b b b b b b b b b b d d b 
+        b b d 1 1 3 1 1 d 1 d 1 1 d b b 
+        . . b b d d 1 1 3 d d 1 b b . . 
+        . . 2 2 4 4 4 4 4 4 4 4 2 2 . . 
+        . . . 2 2 4 4 4 4 4 2 2 2 . . . 
+        `,img`
+        . . . . . . . . b b . . . . . . 
+        . . . . . . . . b b . . . . . . 
+        . . . b b b . . . . . . . . . . 
+        . . b d d b . . . . . . . b b . 
+        . b d d d b . . . . . . b d d b 
+        . b d d b . . . . b b . b d d b 
+        . b b b . . . . . b b . . b b . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . b b b d d d d d d b b b . . 
+        . b d c c c b b b b c c d d b . 
+        b d d c b . . . . . b c c d d b 
+        c d d b b . . . . . . b c d d c 
+        c b d d d b b . . . . b d d c c 
+        . c c b d d d d b . c c c c c c 
+        . . . c c c c c c . . . . . . . 
+        `],
+    100,
+    false
+    )
+    pause(300)
+    kraid.destroy()
+    varBossesDefeated = 1
+    varExtraEnemyDmg = 5
+    varExtraEnemyHealth = 2
+    scene.cameraShake(4, 500)
+    wallRow = 124
+    for (let index = 0; index < 2; index++) {
+        wallCol = 9
+        for (let index = 0; index < 6; index++) {
+            tiles.setWallAt(tiles.getTileLocation(wallRow, wallCol), false)
+            tiles.setTileAt(tiles.getTileLocation(wallRow, wallCol), assets.tile`transparency16`)
+            wallCol += 1
+        }
+        wallCol = 9
+        for (let index = 0; index < 6; index++) {
+            tiles.setWallAt(tiles.getTileLocation(wallRow + 1, wallCol), false)
+            tiles.setTileAt(tiles.getTileLocation(wallRow + 1, wallCol), assets.tile`transparency16`)
+            wallCol += 1
+        }
+        wallRow = 147
+    }
+    tiles.setTileAt(tiles.getTileLocation(124, 9), assets.tile`4x4block2`)
+    tiles.setTileAt(tiles.getTileLocation(125, 9), assets.tile`4x4block3`)
+    tiles.setTileAt(tiles.getTileLocation(147, 9), assets.tile`4x4block2`)
+    tiles.setTileAt(tiles.getTileLocation(148, 9), assets.tile`4x4block3`)
+}
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndEnemyCrawler, function (sprite, otherSprite) {
     if (varCrawlerShelled == false) {
         sprite.destroy()
@@ -4913,26 +5077,34 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile26`, function (sprite, 
     }
 })
 let projSnakeSpit: Sprite = null
+let kraidBullet: Sprite = null
+let kraidClaw: Sprite = null
+let kraidSnake: Sprite = null
 let enemyBabyKaiju: Sprite = null
 let projKaijuEgg: Sprite = null
 let projKaijuFire: Sprite = null
 let varCrawlerShelled = false
+let wallCol = 0
+let wallRow = 0
 let varPowerBombGlassLocation = 0
-let varBarrierFound = false
+let varBattlingRidley = 0
+let varBattlingKraid = 0
 let varBossesDefeated = 0
 let bossCore: Sprite = null
 let varRidleyGlassLocation = 0
 let varDoorRow = 0
 let varDoorCol = 0
+let kraid: Sprite = null
 let itemChargeBeam: Sprite = null
 let itemMissilePack: Sprite = null
 let projbreakEffect: Sprite = null
 let energyBarWidth = 0
-let stbEnergy: StatusBarSprite = null
 let ctsnShip: Sprite = null
 let arrEtankFound: number[] = []
 let projChargeBeam: Sprite = null
 let varChargeBeamActivate = 0
+let stbEnergy: StatusBarSprite = null
+let varBarrierFound = false
 let varAtSaveStation = 0
 let varElevatorFromLevel = 0
 let varTitleMusic = false
@@ -4945,6 +5117,7 @@ let varMissile1Found = false
 let varMissileGetCheck = false
 let varCallarisMusic = false
 let txtContinue: TextSprite = null
+let varGameStarted = 0
 let txtNewGame: TextSprite = null
 let txtName: TextSprite = null
 let txtLogo: TextSprite = null
@@ -4963,8 +5136,6 @@ let varItemGetMusic = false
 let varNorinMusic = false
 let othrCursor: Sprite = null
 let othrCursorPosition = 0
-let plrSamus: Sprite = null
-let varLevelState = 0
 let varMissileId = 0
 let varEtankId = 0
 let itemSuperMissile: Sprite = null
@@ -4973,10 +5144,14 @@ let itemPowerBomb: Sprite = null
 let varPowerBombFound = false
 let varHighJumpFound = false
 let saveStation: Sprite = null
-let varGameStarted = 0
+let plrSamus: Sprite = null
+let varLevelState = 0
 music.setVolume(20)
-varGameStarted = blockSettings.readNumber("gameStarted")
-Setup_Title_Screen()
+varLevelState = 2
+Setup_createSamus()
+Setup_createLevel2(false, false)
+testing_give_all_items()
+tiles.placeOnTile(plrSamus, tiles.getTileLocation(74, 45))
 game.onUpdateInterval(randint(2500, 5000), function () {
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyKaiju)) {
         value.setVelocity(0, 0)
@@ -6087,6 +6262,183 @@ game.onUpdateInterval(randint(2500, 5000), function () {
         })
     }
 })
+game.onUpdateInterval(randint(1500, 3000), function () {
+    if (varBattlingKraid == 1) {
+        kraidSnake = sprites.create(img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `, SpriteKind.kndKraidSnake)
+        tiles.placeOnTile(kraidSnake, tiles.getTileLocation(145, 14))
+        kraidSnake.setVelocity(-100, 0)
+        animation.runImageAnimation(
+        kraidSnake,
+        [img`
+            . . . . c c c c c c . . . . . . 
+            . . . c 6 7 7 7 7 6 c . . . . . 
+            . . c 7 7 7 7 7 7 7 7 c . . . . 
+            . c 6 7 7 7 7 7 7 7 7 6 c . . . 
+            . c 7 c 6 6 6 6 c 7 7 7 c . . . 
+            . f 7 6 f 6 6 f 6 7 7 7 f . . . 
+            . f 7 7 7 7 7 7 7 7 7 7 f . . . 
+            . . f 7 7 7 7 6 c 7 7 6 f c . . 
+            . . . f c c c c 7 7 6 f 7 7 c . 
+            . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
+            . c 7 7 2 7 7 c f c 6 7 7 6 c c 
+            c 1 1 1 1 7 6 f c c 6 6 6 c . . 
+            f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
+            f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
+            . f 6 1 1 1 1 1 1 6 6 6 f . . . 
+            . . c c c c c c c c c f . . . . 
+            `,img`
+            . . . c c c c c c . . . . . . . 
+            . . c 6 7 7 7 7 6 c . . . . . . 
+            . c 7 7 7 7 7 7 7 7 c . . . . . 
+            c 6 7 7 7 7 7 7 7 7 6 c . . . . 
+            c 7 c 6 6 6 6 c 7 7 7 c . . . . 
+            f 7 6 f 6 6 f 6 7 7 7 f . . . . 
+            f 7 7 7 7 7 7 7 7 7 7 f . . . . 
+            . f 7 7 7 7 6 c 7 7 6 f . . . . 
+            . . f c c c c 7 7 6 f c c c . . 
+            . . c 6 2 7 7 7 f c c 7 7 7 c . 
+            . c 6 7 7 2 7 7 c f 6 7 7 7 7 c 
+            . c 1 1 1 1 7 6 6 c 6 6 6 c c c 
+            . c 1 1 1 1 1 6 6 6 6 6 6 c . . 
+            . c 6 1 1 1 1 1 6 6 6 6 6 c . . 
+            . . c 6 1 1 1 1 1 7 6 6 c c . . 
+            . . . c c c c c c c c c c . . . 
+            `],
+        100,
+        true
+        )
+    }
+})
+game.onUpdateInterval(randint(750, 2000), function () {
+    if (varBattlingKraid == 1) {
+        for (let value of sprites.allOfKind(SpriteKind.kndBossKraid)) {
+            if (Math.percentChance(33.3)) {
+                kraid.setVelocity(0, 0)
+                kraidClaw = sprites.createProjectileFromSprite(assets.image`kraidSlash`, value, -100, 0)
+                animation.runImageAnimation(
+                kraidClaw,
+                [img`
+                    . . . . . . . . 1 d d d . . . . 
+                    . . . . . 1 1 1 1 1 1 1 1 d . . 
+                    . . . 1 1 1 1 1 1 1 1 1 1 . . . 
+                    . . 1 1 1 1 1 1 1 d d . . . . . 
+                    . . 1 1 1 1 1 . . . . . . . . . 
+                    . . 1 1 1 1 . . . . . . . . . . 
+                    . . 1 1 1 . . . . . . . . . . . 
+                    . . 1 1 1 . . . . . . . . . . . 
+                    . . 1 1 1 . . . . . . . . . . . 
+                    . . 1 1 1 1 . . . . . . . . . . 
+                    . . 1 1 1 1 . . . . . . . . . . 
+                    . . 1 1 1 1 1 1 . . . . . . . . 
+                    . . . 1 1 1 1 1 1 1 . . . . . . 
+                    . . . . 1 1 1 1 1 . . . . . . . 
+                    . . . . . 1 . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    `,img`
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . 1 1 1 1 1 1 1 1 1 . . . 
+                    . . . 1 1 1 1 1 1 1 1 1 1 1 . . 
+                    . . 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+                    . 1 1 1 1 1 1 . . . 1 1 1 1 1 . 
+                    . . 1 1 1 . . . . . . 1 1 1 1 . 
+                    . . 1 1 1 . . . . . . . 1 1 1 . 
+                    . . 1 1 . . . . . . . . 1 1 1 1 
+                    . . . 1 . . . . . . . . d 1 1 d 
+                    . . . . . . . . . . . . d 1 1 d 
+                    . . . . . . . . . . . . . 1 1 d 
+                    . . . . . . . . . . . . . 1 1 . 
+                    . . . . . . . . . . . . . . d . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    `,img`
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . 1 . . . . . 
+                    . . . . . . . 1 1 1 1 1 . . . . 
+                    . . . . . . 1 1 1 1 1 1 1 . . . 
+                    . . . . . . . . 1 1 1 1 1 1 . . 
+                    . . . . . . . . . . 1 1 1 1 . . 
+                    . . . . . . . . . . 1 1 1 1 . . 
+                    . . . . . . . . . . . 1 1 1 . . 
+                    . . . . . . . . . . . 1 1 1 . . 
+                    . . . . . . . . . . . 1 1 1 . . 
+                    . . . . . . . . . . 1 1 1 1 . . 
+                    . . . . . . . . . 1 1 1 1 1 . . 
+                    . . . . . d d 1 1 1 1 1 1 1 . . 
+                    . . . 1 1 1 1 1 1 1 1 1 1 . . . 
+                    . . d 1 1 1 1 1 1 1 1 . . . . . 
+                    . . . . d d d 1 . . . . . . . . 
+                    `,img`
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . d . . . . . . . . . . . . . . 
+                    . 1 1 . . . . . . . . . . . . . 
+                    d 1 1 . . . . . . . . . . . . . 
+                    d 1 1 d . . . . . . . . . . . . 
+                    d 1 1 d . . . . . . . . 1 . . . 
+                    1 1 1 1 . . . . . . . . 1 1 . . 
+                    . 1 1 1 . . . . . . . 1 1 1 . . 
+                    . 1 1 1 1 . . . . . . 1 1 1 . . 
+                    . 1 1 1 1 1 . . . 1 1 1 1 1 1 . 
+                    . . 1 1 1 1 1 1 1 1 1 1 1 1 . . 
+                    . . 1 1 1 1 1 1 1 1 1 1 1 . . . 
+                    . . . 1 1 1 1 1 1 1 1 1 . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    `],
+                100,
+                true
+                )
+            } else if (Math.percentChance(33.3)) {
+                kraid.setVelocity(0, 0)
+                animation.runImageAnimation(
+                kraid,
+                assets.animation`kraidOpening`,
+                500,
+                false
+                )
+                timer.after(550, function () {
+                    for (let index = 0; index < 4; index++) {
+                        kraidBullet = sprites.createProjectileFromSprite(assets.image`kraidProjectile`, value, -100, 0)
+                        kraidBullet.y += -9
+                        pause(100)
+                    }
+                })
+                timer.after(50, function () {
+                    animation.runImageAnimation(
+                    kraid,
+                    assets.animation`kraidClosed0`,
+                    200,
+                    false
+                    )
+                })
+            } else if (Math.percentChance(33.4)) {
+                if (Math.percentChance(50)) {
+                    kraid.setVelocity(5, 0)
+                } else {
+                    kraid.setVelocity(-5, 0)
+                }
+            }
+        }
+    }
+})
 game.onUpdateInterval(randint(500, 1000), function () {
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyBabyKaiju)) {
         value.setVelocity(randint(-100, 100), 0)
@@ -6452,6 +6804,71 @@ forever(function () {
                     )
                 }
             }
+        }
+    }
+})
+forever(function () {
+    for (let value of sprites.allOfKind(SpriteKind.kndKraidSnake)) {
+        if (value.isHittingTile(CollisionDirection.Left)) {
+            animation.runImageAnimation(
+            value,
+            [img`
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . 4 . . . . . 
+                . . . . 2 . . . . 4 4 . . . . . 
+                . . . . 2 4 . . 4 5 4 . . . . . 
+                . . . . . 2 4 d 5 5 4 . . . . . 
+                . . . . . 2 5 5 5 5 4 . . . . . 
+                . . . . . . 2 5 5 5 5 4 . . . . 
+                . . . . . . 2 5 4 2 4 4 . . . . 
+                . . . . . . 4 4 . . 2 4 4 . . . 
+                . . . . . 4 4 . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `,img`
+                . 3 . . . . . . . . . . . 4 . . 
+                . 3 3 . . . . . . . . . 4 4 . . 
+                . 3 d 3 . . 4 4 . . 4 4 d 4 . . 
+                . . 3 5 3 4 5 5 4 4 d d 4 4 . . 
+                . . 3 d 5 d 1 1 d 5 5 d 4 4 . . 
+                . . 4 5 5 1 1 1 1 5 1 1 5 4 . . 
+                . 4 5 5 5 5 1 1 5 1 1 1 d 4 4 . 
+                . 4 d 5 1 1 5 5 5 1 1 1 5 5 4 . 
+                . 4 4 5 1 1 5 5 5 5 5 d 5 5 4 . 
+                . . 4 3 d 5 5 5 d 5 5 d d d 4 . 
+                . 4 5 5 d 5 5 5 d d d 5 5 4 . . 
+                . 4 5 5 d 3 5 d d 3 d 5 5 4 . . 
+                . 4 4 d d 4 d d d 4 3 d d 4 . . 
+                . . 4 5 4 4 4 4 4 4 4 4 4 . . . 
+                . 4 5 4 . . 4 4 4 . . . 4 4 . . 
+                . 4 4 . . . . . . . . . . 4 4 . 
+                `,img`
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . b b . b b b . . . . . 
+                . . . . b 1 1 b 1 1 1 b . . . . 
+                . . b b 3 1 1 d d 1 d d b b . . 
+                . b 1 1 d d b b b b b 1 1 b . . 
+                . b 1 1 1 b . . . . . b d d b . 
+                . . 3 d d b . . . . . b d 1 1 b 
+                . b 1 d 3 . . . . . . . b 1 1 b 
+                . b 1 1 b . . . . . . b b 1 d b 
+                . b 1 d b . . . . . . b d 3 d b 
+                . b b d d b . . . . b d d d b . 
+                . b d d d d b . b b 3 d d 3 b . 
+                . . b d d 3 3 b d 3 3 b b b . . 
+                . . . b b b d d d d d b . . . . 
+                . . . . . . b b b b b . . . . . 
+                `],
+            100,
+            false
+            )
+            pause(300)
+            value.destroy()
         }
     }
 })
