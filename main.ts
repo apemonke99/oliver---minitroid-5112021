@@ -2851,6 +2851,8 @@ function continueGame () {
     varBossesDefeated = blockSettings.readNumber("bossesDefeated")
     energyBarWidth = blockSettings.readNumber("energyWidth")
     stbEnergy.max = blockSettings.readNumber("energyMax")
+    stbEnergy.setBarSize(energyBarWidth, 7)
+    stbEnergy.value = stbEnergy.max
     varExtraEnemyDmg = blockSettings.readNumber("extraEnemyDmg")
     varExtraEnemyHealth = blockSettings.readNumber("extraEnemyHealth")
     arrMissileFound = blockSettings.readNumberArray("missilesFound")
