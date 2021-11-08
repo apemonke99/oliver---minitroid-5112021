@@ -1,5 +1,6 @@
 {
     "name": "Oliver - Minitroid 8.11.2021",
+    "version": "1.0.0",
     "description": "",
     "dependencies": {
         "device": "*",
