@@ -47,6 +47,9 @@ namespace SpriteKind {
     export const kndRidleyBat = SpriteKind.create()
     export const kndEnemyTurretV = SpriteKind.create()
     export const kndProjTurret = SpriteKind.create()
+    export const knd20HealthPickup = SpriteKind.create()
+    export const knd50healthPickup = SpriteKind.create()
+    export const knd3MissilePickup = SpriteKind.create()
 }
 namespace StatusBarKind {
     export const healthEnergy = StatusBarKind.create()
@@ -146,6 +149,11 @@ sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndMissiles, function (sp
     if (sprites.readDataNumber(sprite, "health") <= 0) {
         Boss_Defeat_Ridley()
     }
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.knd50healthPickup, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    stbEnergy.value += 50
+    stbEnergy.setLabel(convertToText(stbEnergy.value))
 })
 sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndItemChargeBean, function (sprite, otherSprite) {
     otherSprite.destroy()
@@ -2255,10 +2263,10 @@ sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.redDoor, function (sprite, 
         false
         )
         timer.after(2500, function () {
-            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16))
+            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16), otherSprite)
             animation.runImageAnimation(
             otherSprite,
-            assets.animation`redDoorClose`,
+            assets.animation`blueDoorClose`,
             100,
             false
             )
@@ -2587,6 +2595,9 @@ function Setup_createLevel1 (_continue: boolean, fromLevel: boolean) {
         pause(4500)
         varLevelState = 1
         controller.moveSprite(plrSamus, 100, 0)
+        timer.background(function () {
+            Song_Enrylo_lvl1()
+        })
     } else if (fromLevel) {
         plrSamus.setImage(assets.image`samusFront`)
         if (varElevatorFromLevel == 2) {
@@ -2693,7 +2704,7 @@ function Boss_Kraid () {
     kraid.setVelocity(5, 0)
     sprites.setDataNumber(kraid, "enemyHealth", 30)
 }
-function closeDoor (doorCol: number, doorRow: number) {
+function closeDoor (doorCol: number, doorRow: number, door: Sprite) {
     varDoorCol = doorCol
     varDoorRow = doorRow
     for (let index = 0; index < 4; index++) {
@@ -2710,6 +2721,7 @@ function closeDoor (doorCol: number, doorRow: number) {
         tiles.setWallAt(tiles.getTileLocation(varDoorCol - 2, varDoorRow), true)
         varDoorRow += -1
     }
+    door.setKind(SpriteKind.blueDoor)
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.kndRidleyFire, function (sprite, otherSprite) {
     playerDamaged(-35, otherSprite)
@@ -2812,7 +2824,7 @@ sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.blueDoor, function (sprite
         false
         )
         timer.after(2500, function () {
-            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16))
+            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16), otherSprite)
             animation.runImageAnimation(
             otherSprite,
             assets.animation`blueDoorClose`,
@@ -2851,14 +2863,19 @@ sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.orangeDoor, function (spr
     false
     )
     timer.after(2500, function () {
-        closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16))
+        closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16), otherSprite)
         animation.runImageAnimation(
         otherSprite,
-        assets.animation`orangeDoorClose`,
+        assets.animation`blueDoorClose`,
         100,
         false
         )
     })
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.knd20HealthPickup, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    stbEnergy.value += 20
+    stbEnergy.setLabel(convertToText(stbEnergy.value))
 })
 sprites.onOverlap(SpriteKind.kndBossCore, SpriteKind.kndItemSuperMissile, function (sprite, otherSprite) {
     otherSprite.destroy()
@@ -3343,6 +3360,11 @@ function continueGame () {
 }
 sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.kndEnemyCrawler, function (sprite, otherSprite) {
     hitEnemy(-1, sprite, otherSprite)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.knd3MissilePickup, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    stbMissiles.max = 3
+    txtMissileCounter = textsprite.create(" " + convertToText(stbMissiles.value), 15, 1)
 })
 controller.menu.onEvent(ControllerButtonEvent.Pressed, function () {
     if (varLevelState >= 1) {
@@ -4555,6 +4577,64 @@ sprites.onCreated(SpriteKind.kndRidleyGlass, function (sprite) {
         c 3 3 a a a a a a a a a a c c c 
         `)
 })
+function randomPickup (enemy: Sprite, _20health: number, _50health: number, _3missile: number) {
+    if (Math.percentChance(_20health)) {
+        _20healthPickip = sprites.create(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, SpriteKind.knd20HealthPickup)
+        animation.runImageAnimation(
+        _20healthPickip,
+        assets.animation`pickup5HealthAnim`,
+        200,
+        true
+        )
+        tiles.placeOnTile(_20healthPickip, tiles.locationOfSprite(enemy))
+    } else if (Math.percentChance(_50health)) {
+        _50healthPickup = sprites.create(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, SpriteKind.knd50healthPickup)
+        animation.runImageAnimation(
+        _50healthPickup,
+        assets.animation`pickup20HealthAnim`,
+        200,
+        true
+        )
+        tiles.placeOnTile(_50healthPickup, tiles.locationOfSprite(enemy))
+    } else if (Math.percentChance(_3missile)) {
+        _3missilePickup = sprites.create(assets.image`pickup3Missiles`, SpriteKind.knd3MissilePickup)
+        tiles.placeOnTile(_3missilePickup, tiles.locationOfSprite(enemy))
+    }
+}
 function Song_Norin_lvl2 () {
     varNorinMusic = true
     music.setTempo(110)
@@ -5308,10 +5388,10 @@ sprites.onOverlap(SpriteKind.kndSuperMissile, SpriteKind.greenDoor, function (sp
         false
         )
         timer.after(2500, function () {
-            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16))
+            closeDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16), otherSprite)
             animation.runImageAnimation(
             otherSprite,
-            assets.animation`blueGreenClose`,
+            assets.animation`blueDoorClose`,
             100,
             false
             )
@@ -5403,6 +5483,7 @@ function hitEnemy (healthLost: number, projectile: Sprite, enemy: Sprite) {
         false
         )
         timer.after(300, function () {
+            randomPickup(enemy, 40, 25, 35)
             enemy.destroy()
         })
     }
@@ -5515,6 +5596,9 @@ let projKaijuFire: Sprite = null
 let varCrawlerShelled = false
 let wallCol = 0
 let wallRow = 0
+let _3missilePickup: Sprite = null
+let _50healthPickup: Sprite = null
+let _20healthPickip: Sprite = null
 let varBattlingKraid = 0
 let bossCore: Sprite = null
 let varDoorRow = 0
@@ -5532,7 +5616,6 @@ let varBarrierFound = false
 let varAtSaveStation = 0
 let varElevatorFromLevel = 0
 let bossRidleyFireball: Sprite = null
-let stbEnergy: StatusBarSprite = null
 let varTitleMusic = false
 let varElevatorActive = false
 let varMorphBallFound = false
@@ -5564,6 +5647,7 @@ let varItemGetMusic = false
 let varNorinMusic = false
 let othrCursor: Sprite = null
 let othrCursorPosition = 0
+let stbEnergy: StatusBarSprite = null
 let plrSamus: Sprite = null
 let varLevelState = 0
 let varBattlingRidley = 0
