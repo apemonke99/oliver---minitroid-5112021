@@ -1,5 +1,5 @@
 {
-    "name": "Oliver - Minitroid 8.11.2021",
+    "name": "Oliver - Minitroid FINAL!",
     "version": "1.0.0",
     "description": "",
     "dependencies": {
@@ -27,7 +27,8 @@
         "images.g.jres",
         "images.g.ts",
         "tilemap.g.jres",
-        "tilemap.g.ts"
+        "tilemap.g.ts",
+        null
     ],
     "testFiles": [
         "test.ts"
