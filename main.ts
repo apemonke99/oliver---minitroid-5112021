@@ -155,13 +155,6 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.knd50healthPickup, function (spr
     stbEnergy.value += 50
     stbEnergy.setLabel(convertToText(stbEnergy.value))
 })
-sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndItemChargeBean, function (sprite, otherSprite) {
-    otherSprite.destroy()
-    sprites.changeDataNumberBy(sprite, "health", -3)
-    if (sprites.readDataNumber(sprite, "health") <= 0) {
-        Boss_Defeat_Ridley()
-    }
-})
 sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndEnemyBat, function (sprite, otherSprite) {
     hitEnemy(-1, sprite, otherSprite)
 })
@@ -1756,131 +1749,7 @@ function Setup_Starting_Cutscene () {
         varLevelState = 0.5
         music.stopAllSounds()
         ctsnShip.destroy()
-        scene.setBackgroundImage(img`
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            `)
         color.clearFadeEffect()
-        story.printText("Enrylo", 80, 60, 6, 0, story.TextSpeed.Slow)
-        pause(1000)
         Setup_createSamus()
         Setup_createLevel1(false, false)
         scene.setBackgroundImage(img`
@@ -2834,25 +2703,6 @@ sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.blueDoor, function (sprite
         })
     })
 })
-function testing_give_all_items () {
-    varMorphBallFound = true
-    varMissile1Found = true
-    if (varMissile1Found) {
-        stbMissiles = statusbars.create(0, 0, StatusBarKind.missileAmmo)
-        stbMissiles.max = 50
-        txtMissileCounter = textsprite.create(" " + convertToText(stbMissiles.value), 15, 1)
-        txtMissileCounter.setIcon(assets.image`missileIconOff`)
-        txtMissileCounter.setFlag(SpriteFlag.RelativeToCamera, true)
-        txtMissileCounter.setPosition(20, 15)
-        txtMissileCounter.z = 10
-        varMissileGetCheck = true
-        varMissile1Found = true
-    }
-    varChargeBeamFound = true
-    varHighJumpFound = true
-    varPowerBombFound = true
-    varSuperMissileFound = true
-}
 sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.orangeDoor, function (sprite, otherSprite) {
     sprite.destroy()
     openDoor(Math.round(Math.round(otherSprite.x / 16)), Math.round(Math.round(otherSprite.y) / 16))
@@ -2877,70 +2727,12 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.knd20HealthPickup, function (spr
     stbEnergy.value += 20
     stbEnergy.setLabel(convertToText(stbEnergy.value))
 })
-sprites.onOverlap(SpriteKind.kndBossCore, SpriteKind.kndItemSuperMissile, function (sprite, otherSprite) {
+sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndChargeBeam, function (sprite, otherSprite) {
     otherSprite.destroy()
-    animation.runImageAnimation(
-    sprite,
-    [img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . 4 4 4 4 4 . . . . . . 
-        . . . 4 4 4 5 5 5 d 4 4 4 4 . . 
-        . . 4 d 5 d 5 5 5 d d d 4 4 . . 
-        . . 4 5 5 1 1 1 d d 5 5 5 4 . . 
-        . 4 5 5 5 1 1 1 5 1 1 5 5 4 4 . 
-        . 4 d d 1 1 5 5 5 1 1 5 5 d 4 . 
-        . 4 5 5 1 1 5 1 1 5 5 d d d 4 . 
-        . 2 5 5 5 d 1 1 1 5 1 1 5 5 2 . 
-        . 2 d 5 5 d 1 1 1 5 1 1 5 5 2 . 
-        . . 2 4 d d 5 5 5 5 d d 5 4 . . 
-        . . . 2 2 4 d 5 5 d d 4 4 . . . 
-        . . 2 2 2 2 2 4 4 4 2 2 2 . . . 
-        . . . 2 2 4 4 4 4 4 4 2 2 . . . 
-        . . . . . 2 2 2 2 2 2 . . . . . 
-        `,img`
-        . . . . 2 2 2 2 2 2 2 2 . . . . 
-        . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
-        . 2 2 5 5 d 4 5 5 5 4 4 4 4 2 . 
-        . 2 4 5 5 5 5 d 5 5 5 4 5 4 2 2 
-        . 2 4 d d 5 5 5 5 5 5 d 4 4 4 2 
-        2 4 5 5 d 5 5 5 d d d 5 5 5 4 4 
-        2 4 5 5 4 4 4 d 5 5 d 5 5 5 4 4 
-        4 4 4 4 . . 2 4 5 5 . . 4 4 4 4 
-        . . b b b b 2 4 4 2 b b b b . . 
-        . b d d d d 2 4 4 2 d d d d b . 
-        b d d b b b 2 4 4 2 b b b d d b 
-        b d d b b b b b b b b b b d d b 
-        b b d 1 1 3 1 1 d 1 d 1 1 d b b 
-        . . b b d d 1 1 3 d d 1 b b . . 
-        . . 2 2 4 4 4 4 4 4 4 4 2 2 . . 
-        . . . 2 2 4 4 4 4 4 2 2 2 . . . 
-        `,img`
-        . . . . . . . . b b . . . . . . 
-        . . . . . . . . b b . . . . . . 
-        . . . b b b . . . . . . . . . . 
-        . . b d d b . . . . . . . b b . 
-        . b d d d b . . . . . . b d d b 
-        . b d d b . . . . b b . b d d b 
-        . b b b . . . . . b b . . b b . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . b b b d d d d d d b b b . . 
-        . b d c c c b b b b c c d d b . 
-        b d d c b . . . . . b c c d d b 
-        c d d b b . . . . . . b c d d c 
-        c b d d d b b . . . . b d d c c 
-        . c c b d d d d b . c c c c c c 
-        . . . c c c c c c . . . . . . . 
-        `],
-    100,
-    false
-    )
-    color.FadeToBlack.startScreenEffect(500)
-    color.pauseUntilFadeDone()
-    unloadAll()
-    pause(100)
-    setup_createLvl4()
+    sprites.changeDataNumberBy(sprite, "health", -3)
+    if (sprites.readDataNumber(sprite, "health") <= 0) {
+        Boss_Defeat_Ridley()
+    }
 })
 function playerDamaged (energyLost: number, enemy: Sprite) {
     stbEnergy.value += energyLost + varExtraEnemyDmg
@@ -3363,8 +3155,8 @@ sprites.onOverlap(SpriteKind.kndChargeBeam, SpriteKind.kndEnemyCrawler, function
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.knd3MissilePickup, function (sprite, otherSprite) {
     otherSprite.destroy()
-    stbMissiles.max = 3
-    txtMissileCounter = textsprite.create(" " + convertToText(stbMissiles.value), 15, 1)
+    stbMissiles.value += 3
+    txtMissileCounter.setText(" " + convertToText(stbMissiles.value))
 })
 controller.menu.onEvent(ControllerButtonEvent.Pressed, function () {
     if (varLevelState >= 1) {
@@ -4479,6 +4271,71 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.kndSaveStation, function (sprite
         }
     })
 })
+sprites.onOverlap(SpriteKind.kndBossCore, SpriteKind.kndSuperMissile, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    animation.runImageAnimation(
+    sprite,
+    [img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . 4 4 4 4 4 . . . . . . 
+        . . . 4 4 4 5 5 5 d 4 4 4 4 . . 
+        . . 4 d 5 d 5 5 5 d d d 4 4 . . 
+        . . 4 5 5 1 1 1 d d 5 5 5 4 . . 
+        . 4 5 5 5 1 1 1 5 1 1 5 5 4 4 . 
+        . 4 d d 1 1 5 5 5 1 1 5 5 d 4 . 
+        . 4 5 5 1 1 5 1 1 5 5 d d d 4 . 
+        . 2 5 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . 2 d 5 5 d 1 1 1 5 1 1 5 5 2 . 
+        . . 2 4 d d 5 5 5 5 d d 5 4 . . 
+        . . . 2 2 4 d 5 5 d d 4 4 . . . 
+        . . 2 2 2 2 2 4 4 4 2 2 2 . . . 
+        . . . 2 2 4 4 4 4 4 4 2 2 . . . 
+        . . . . . 2 2 2 2 2 2 . . . . . 
+        `,img`
+        . . . . 2 2 2 2 2 2 2 2 . . . . 
+        . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
+        . 2 2 5 5 d 4 5 5 5 4 4 4 4 2 . 
+        . 2 4 5 5 5 5 d 5 5 5 4 5 4 2 2 
+        . 2 4 d d 5 5 5 5 5 5 d 4 4 4 2 
+        2 4 5 5 d 5 5 5 d d d 5 5 5 4 4 
+        2 4 5 5 4 4 4 d 5 5 d 5 5 5 4 4 
+        4 4 4 4 . . 2 4 5 5 . . 4 4 4 4 
+        . . b b b b 2 4 4 2 b b b b . . 
+        . b d d d d 2 4 4 2 d d d d b . 
+        b d d b b b 2 4 4 2 b b b d d b 
+        b d d b b b b b b b b b b d d b 
+        b b d 1 1 3 1 1 d 1 d 1 1 d b b 
+        . . b b d d 1 1 3 d d 1 b b . . 
+        . . 2 2 4 4 4 4 4 4 4 4 2 2 . . 
+        . . . 2 2 4 4 4 4 4 2 2 2 . . . 
+        `,img`
+        . . . . . . . . b b . . . . . . 
+        . . . . . . . . b b . . . . . . 
+        . . . b b b . . . . . . . . . . 
+        . . b d d b . . . . . . . b b . 
+        . b d d d b . . . . . . b d d b 
+        . b d d b . . . . b b . b d d b 
+        . b b b . . . . . b b . . b b . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . b b b d d d d d d b b b . . 
+        . b d c c c b b b b c c d d b . 
+        b d d c b . . . . . b c c d d b 
+        c d d b b . . . . . . b c d d c 
+        c b d d d b b . . . . b d d c c 
+        . c c b d d d d b . c c c c c c 
+        . . . c c c c c c . . . . . . . 
+        `],
+    100,
+    false
+    )
+    color.FadeToBlack.startScreenEffect(500)
+    color.pauseUntilFadeDone()
+    unloadAll()
+    pause(100)
+    setup_createLvl4()
+})
 sprites.onCreated(SpriteKind.redDoor, function (sprite) {
     sprite.setImage(assets.image`doorRed`)
 })
@@ -4630,7 +4487,7 @@ function randomPickup (enemy: Sprite, _20health: number, _50health: number, _3mi
         true
         )
         tiles.placeOnTile(_50healthPickup, tiles.locationOfSprite(enemy))
-    } else if (Math.percentChance(_3missile)) {
+    } else if (Math.percentChance(_3missile) && varMissile1Found == true) {
         _3missilePickup = sprites.create(assets.image`pickup3Missiles`, SpriteKind.knd3MissilePickup)
         tiles.placeOnTile(_3missilePickup, tiles.locationOfSprite(enemy))
     }
@@ -4998,9 +4855,6 @@ sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyCrawler, function (
 sprites.onOverlap(SpriteKind.kndSuperMissile, SpriteKind.kndBossRidley, function (sprite, otherSprite) {
     sprite.destroy()
     Boss_Defeat_Ridley()
-})
-sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndBossCore, function (sprite, otherSprite) {
-    hitEnemy(-1, sprite, otherSprite)
 })
 sprites.onOverlap(SpriteKind.kndMissiles, SpriteKind.kndEnemyKaiju, function (sprite, otherSprite) {
     hitEnemy(-3, sprite, otherSprite)
@@ -5419,6 +5273,13 @@ function openDoor (doorCol: number, doorRow: number) {
         varDoorRow += -1
     }
 }
+sprites.onOverlap(SpriteKind.kndBossRidley, SpriteKind.kndPowerBeam, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    sprites.changeDataNumberBy(sprite, "health", -1)
+    if (sprites.readDataNumber(sprite, "health") <= 0) {
+        Boss_Defeat_Ridley()
+    }
+})
 function hitEnemy (healthLost: number, projectile: Sprite, enemy: Sprite) {
     projectile.destroy()
     sprites.changeDataNumberBy(enemy, "enemyHealth", healthLost)
@@ -5492,6 +5353,7 @@ sprites.onOverlap(SpriteKind.kndPowerBeam, SpriteKind.kndEnemySnakes, function (
     hitEnemy(-1, sprite, otherSprite)
 })
 function unloadAll () {
+    tiles.destroySpritesOfKind(SpriteKind.lockedDoor)
     tiles.destroySpritesOfKind(SpriteKind.blueDoor)
     tiles.destroySpritesOfKind(SpriteKind.redDoor)
     tiles.destroySpritesOfKind(SpriteKind.orangeDoor)
@@ -6981,7 +6843,9 @@ game.onUpdateInterval(1000, function () {
             . c 1 4 b b c . 
             . . c c c c . . 
             `, value, -100, 0)
-        value.setKind(SpriteKind.kndProjTurret)
+        projTurretBullet.setKind(SpriteKind.kndProjTurret)
+        projTurretBullet.setFlag(SpriteFlag.AutoDestroy, false)
+        projTurretBullet.setFlag(SpriteFlag.DestroyOnWall, true)
     }
     for (let value of sprites.allOfKind(SpriteKind.kndEnemyTurretV)) {
         projTurretBullet = sprites.createProjectileFromSprite(img`
@@ -7004,7 +6868,9 @@ game.onUpdateInterval(1000, function () {
             . 6 4 d c . 
             . . 6 c . . 
             `, value, 0, -100)
-        value.setKind(SpriteKind.kndProjTurret)
+        projTurretBullet.setKind(SpriteKind.kndProjTurret)
+        projTurretBullet.setFlag(SpriteFlag.AutoDestroy, false)
+        projTurretBullet.setFlag(SpriteFlag.DestroyOnWall, true)
     }
 })
 game.onUpdateInterval(randint(750, 2000), function () {
